@@ -1,0 +1,6 @@
+{
+  "name": "Sri Jhansi Hospital",
+  "description": "Premium multi-speciality hospital and orthopaedics & neuro rehabilitation center website featuring expert specialists, advanced diagnostics, and 24/7 emergency care.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
