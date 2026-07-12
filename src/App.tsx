@@ -7,42 +7,102 @@ import {
   ShieldCheck, 
   Star, 
   Activity, 
-  Flame, 
-  Compass, 
   Stethoscope, 
   Sun, 
   Moon, 
-  ArrowRight,
-  Sparkles,
-  Info,
+  Menu,
+  X,
+  PlusCircle,
+  CheckCircle2,
+  ThumbsUp,
+  FileText,
+  AlertTriangle,
   ChevronRight,
-  GraduationCap,
-  Award,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Maximize2,
   Settings,
-  Link2,
-  AlertTriangle
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
-import { DOCTORS, DEPARTMENTS, SERVICES, TESTIMONIALS } from './data';
+
+import { DOCTORS, DEPARTMENTS, SERVICES, TESTIMONIALS, REHAB_MILESTONES } from './data';
+
+// Import modular page views
+import HomeView from './components/HomeView';
+import AboutView from './components/AboutView';
+import ServicesView from './components/ServicesView';
+import GalleryView from './components/GalleryView';
+import TestimonialsView from './components/TestimonialsView';
+import ContactView from './components/ContactView';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // Minimal tab state: 'departments' | 'diagnostics' | 'doctors'
-  const [activeTab, setActiveTab] = useState<'departments' | 'diagnostics' | 'doctors'>('departments');
+  // PAGE ROUTER STATE: 'home' | 'about' | 'services' | 'gallery' | 'testimonials' | 'contact'
+  const [activePage, setActivePage] = useState<string>('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Specialties / Facilities tab state: 'departments' | 'diagnostics' | 'doctors'
+  const [servicesTab, setServicesTab] = useState<'departments' | 'diagnostics' | 'doctors'>('departments');
   const [selectedDeptId, setSelectedDeptId] = useState(DEPARTMENTS[0].id);
 
-  // Patient reviews slider index
-  const [activeReviewIdx, setActiveReviewIdx] = useState(0);
+  // Doctors filtering state inside services
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
+  const [doctorSpecialtyFilter, setDoctorSpecialtyFilter] = useState('All');
 
-  // Hospital outside facade photograph
-  const heroImgUrl = new URL('./assets/images/hospital_hero_bg_1781786432126.jpg', import.meta.url).href;
-  const mapImgUrl = new URL('./assets/images/piler_hospital_map_1781790033646.jpg', import.meta.url).href;
+  // --- RICH REVIEWS REPOSITORY STATES ---
+  const [reviewsList, setReviewsList] = useState<any[]>(() => {
+    const saved = localStorage.getItem('sri_jhansi_hospital_reviews');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // Fall back to default mapping
+      }
+    }
+    return TESTIMONIALS.map((t, idx) => ({
+      ...t,
+      id: t.id || `t-${idx}`,
+      helpfulCount: idx * 4 + 8,
+      date: `2026-06-${12 + idx * 4}`,
+      verified: true,
+      ticketCode: `SJH-2026-${8100 + idx * 23}`
+    }));
+  });
+
+  // Testimonials view filter & search states
+  const [reviewSearchQuery, setReviewSearchQuery] = useState('');
+  const [reviewRatingFilter, setReviewRatingFilter] = useState<number | 'All'>('All');
+  const [reviewDoctorFilter, setReviewDoctorFilter] = useState<string>('All');
+  const [reviewSortBy, setReviewSortBy] = useState<'helpful' | 'recent' | 'highest' | 'lowest'>('helpful');
+
+  // Modals visibility toggles
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [receiptInput, setReceiptInput] = useState('');
+  const [receiptResult, setReceiptResult] = useState<any>(null);
+  const [receiptError, setReceiptError] = useState('');
+
+  // Form states for submitting new reviews
+  const [formName, setFormName] = useState('');
+  const [formAge, setFormAge] = useState('');
+  const [formCondition, setFormCondition] = useState('');
+  const [formRating, setFormRating] = useState(5);
+  const [formDoctor, setFormDoctor] = useState(DOCTORS[0].name);
+  const [formText, setFormText] = useState('');
+  const [formReceipt, setFormReceipt] = useState('');
+  const [formSuccessMessage, setFormSuccessMessage] = useState('');
+
+  // Upvoted review tracking to prevent duplicate voting
+  const [upvotedReviewIds, setUpvotedReviewIds] = useState<string[]>([]);
+
+  // Pre-configured clinic records for consultation verification matching
+  const CLINIC_RECORDS = [
+    { code: 'SJH-2026-8100', patientName: 'K. Ramasubba Setty', doctorName: 'Dr. M. Dinesh Kumar Reddy', treatment: 'Hemiplegic Stroke Rehabilitation', status: 'Fully Certified Recovery', date: '2026-06-12' },
+    { code: 'SJH-2026-8123', patientName: 'P. Saraswathi', doctorName: 'Dr. V. Anantha Kiran Kumar', treatment: 'Spine & Disc Decompression', status: 'Surgical Consultation Completed', date: '2026-06-16' },
+    { code: 'SJH-2026-8146', patientName: 'S. Mohammed Ghouse', doctorName: 'Dr. A. Hari Nagendra', treatment: 'Chronic Asthmatic Care', status: 'Spirometry PFT Completed', date: '2026-06-20' },
+    { code: 'SJH-2026-8169', patientName: 'G. Viswanath Reddy', doctorName: 'Dr. N. Purna Chandra Rao', treatment: 'Polytrauma Knee Fracture Reconstructive Surgery', status: 'Post-OP Knee Rehab Active', date: '2026-06-24' }
+  ];
 
   // Tour Video Player States
   const [videoUrl, setVideoUrl] = useState(() => {
@@ -91,7 +151,6 @@ export default function App() {
         }
       }, 5000);
     } else if (isYouTubeUrl(videoUrl)) {
-      // YouTube handles its own states, auto-resolve loading on a short delay or iframe load
       const t = setTimeout(() => {
         setVideoLoading(false);
       }, 1500);
@@ -138,9 +197,89 @@ export default function App() {
     return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${videoMuted ? 1 : 0}&loop=1&playlist=${videoId}&controls=1` : url;
   };
 
-  // Toggle Dark Theme
   const handleToggleDarkMode = () => {
     setDarkMode(!darkMode);
+  };
+
+  // --- HANDLER FUNCTIONS FOR VERIFIED REVIEWS ---
+  const handleUpvoteReview = (id: string) => {
+    if (upvotedReviewIds.includes(id)) {
+      setUpvotedReviewIds(prev => prev.filter(item => item !== id));
+      setReviewsList(prev => prev.map(rev => rev.id === id ? { ...rev, helpfulCount: (rev.helpfulCount || 0) - 1 } : rev));
+    } else {
+      setUpvotedReviewIds(prev => [...prev, id]);
+      setReviewsList(prev => prev.map(rev => rev.id === id ? { ...rev, helpfulCount: (rev.helpfulCount || 0) + 1 } : rev));
+    }
+  };
+
+  const handleVerifyReceipt = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = receiptInput.trim().toUpperCase();
+    if (!cleanCode) {
+      setReceiptError('Please enter a Consultation / Case ID.');
+      setReceiptResult(null);
+      return;
+    }
+
+    const matched = CLINIC_RECORDS.find(rec => rec.code.toUpperCase() === cleanCode) || 
+                    reviewsList.find(rev => rev.ticketCode && rev.ticketCode.toUpperCase() === cleanCode);
+
+    if (matched) {
+      setReceiptResult({
+        code: matched.code || matched.ticketCode,
+        patientName: matched.patientName || matched.name,
+        doctorName: matched.doctorName || matched.treatmentDoctor,
+        treatment: matched.treatment || matched.condition,
+        status: matched.status || 'Verified Case Entry',
+        date: matched.date || '2026-07-01'
+      });
+      setReceiptError('');
+    } else {
+      setReceiptError('No consultation record found matching this Code in the active registry.');
+      setReceiptResult(null);
+    }
+  };
+
+  const handleSubmitReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formName.trim() || !formCondition.trim() || !formText.trim()) {
+      alert('Please fill in all required clinical fields.');
+      return;
+    }
+
+    const formattedCode = formReceipt.trim() ? formReceipt.trim().toUpperCase() : `SJH-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const newRev = {
+      id: `rev-${Date.now()}`,
+      name: formName.trim(),
+      age: parseInt(formAge) || 40,
+      condition: formCondition.trim(),
+      review: formText.trim(),
+      rating: formRating,
+      treatmentDoctor: formDoctor,
+      helpfulCount: 0,
+      date: new Date().toISOString().split('T')[0],
+      verified: true,
+      ticketCode: formattedCode
+    };
+
+    const updated = [newRev, ...reviewsList];
+    setReviewsList(updated);
+    localStorage.setItem('sri_jhansi_hospital_reviews', JSON.stringify(updated));
+
+    setFormSuccessMessage('Review verified and added in our public registry!');
+    setTimeout(() => {
+      setFormSuccessMessage('');
+      setShowReviewModal(false);
+      // Reset form
+      setFormName('');
+      setFormAge('');
+      setFormCondition('');
+      setFormRating(5);
+      setFormDoctor(DOCTORS[0].name);
+      setFormText('');
+      setFormReceipt('');
+    }, 2000);
   };
 
   useEffect(() => {
@@ -164,37 +303,36 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 800);
+    }, 600);
     return () => clearTimeout(timer);
   }, []);
 
-  // Contact hotline states
+  // Contact hotline states with dynamic local overrides
   const [deskLine1, setDeskLine1] = useState(() => {
     try {
       const saved = localStorage.getItem('sri_jhansi_desk_line_1');
-      return saved ? JSON.parse(saved) : { label: 'Desk Line 1', phone: '9440571584' };
+      return saved ? JSON.parse(saved) : { label: 'Trauma Emergency Hotline', phone: '9440571584' };
     } catch {
-      return { label: 'Desk Line 1', phone: '9440571584' };
+      return { label: 'Trauma Emergency Hotline', phone: '9440571584' };
     }
   });
   const [deskLine2, setDeskLine2] = useState(() => {
     try {
       const saved = localStorage.getItem('sri_jhansi_desk_line_2');
-      return saved ? JSON.parse(saved) : { label: 'Desk Line 2', phone: '8978639229' };
+      return saved ? JSON.parse(saved) : { label: 'OPD Consultation Liaison', phone: '8978639229' };
     } catch {
-      return { label: 'Desk Line 2', phone: '8978639229' };
+      return { label: 'OPD Consultation Liaison', phone: '8978639229' };
     }
   });
   const [liaisonDesk, setLiaisonDesk] = useState(() => {
     try {
       const saved = localStorage.getItem('sri_jhansi_liaison_desk');
-      return saved ? JSON.parse(saved) : { label: 'Liaison Desk', phone: '8309033922' };
+      return saved ? JSON.parse(saved) : { label: 'Director & Admin Liaison', phone: '8309033922' };
     } catch {
-      return { label: 'Liaison Desk', phone: '8309033922' };
+      return { label: 'Director & Admin Liaison', phone: '8309033922' };
     }
   });
 
-  const [showContactModal, setShowContactModal] = useState(false);
   const [tempDesk1Label, setTempDesk1Label] = useState('');
   const [tempDesk1Phone, setTempDesk1Phone] = useState('');
   const [tempDesk2Label, setTempDesk2Label] = useState('');
@@ -204,9 +342,9 @@ export default function App() {
 
   const handleSaveContactDetails = (e: React.FormEvent) => {
     e.preventDefault();
-    const d1 = { label: tempDesk1Label.trim() || 'Desk Line 1', phone: tempDesk1Phone.trim() || '9440571584' };
-    const d2 = { label: tempDesk2Label.trim() || 'Desk Line 2', phone: tempDesk2Phone.trim() || '8978639229' };
-    const ld = { label: tempLiaisonLabel.trim() || 'Liaison Desk', phone: tempLiaisonPhone.trim() || '8309033922' };
+    const d1 = { label: tempDesk1Label.trim() || 'Trauma Emergency Hotline', phone: tempDesk1Phone.trim() || '9440571584' };
+    const d2 = { label: tempDesk2Label.trim() || 'OPD Consultation Liaison', phone: tempDesk2Phone.trim() || '8978639229' };
+    const ld = { label: tempLiaisonLabel.trim() || 'Director & Admin Liaison', phone: tempLiaisonPhone.trim() || '8309033922' };
 
     setDeskLine1(d1);
     setDeskLine2(d2);
@@ -219,855 +357,447 @@ export default function App() {
     setShowContactModal(false);
   };
 
-  const handleNextReview = () => {
-    setActiveReviewIdx((prev) => (prev + 1) % TESTIMONIALS.length);
+  const triggerUpdateContactModal = () => {
+    setTempDesk1Label(deskLine1.label);
+    setTempDesk1Phone(deskLine1.phone);
+    setTempDesk2Label(deskLine2.label);
+    setTempDesk2Phone(deskLine2.phone);
+    setTempLiaisonLabel(liaisonDesk.label);
+    setTempLiaisonPhone(liaisonDesk.phone);
+    setShowContactModal(true);
   };
 
-  const handlePrevReview = () => {
-    setActiveReviewIdx((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+  // Helper: scroll to top smoothly when changing pages
+  const handlePageChange = (page: string) => {
+    setActivePage(page);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  // Find currently active department details
-  const activeDepartmentDetails = DEPARTMENTS.find(d => d.id === selectedDeptId) || DEPARTMENTS[0];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300 antialiased overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300 flex flex-col justify-between">
       
-      {/* CLINICAL LOADING SCREEN */}
+      {/* 1. GENTLE INTRO FADE-IN LOADER */}
       {loading && (
-        <div className="fixed inset-0 bg-[#0A4D8C] dark:bg-slate-950 z-50 flex flex-col justify-center items-center text-white" id="minimalLoader">
-          <div className="flex flex-col items-center text-center px-4">
+        <div className="fixed inset-0 z-50 bg-[#020b14] flex flex-col items-center justify-center p-6 text-white text-center">
+          <div className="flex flex-col items-center max-w-sm">
             <div className="relative">
-              <div className="w-16 h-16 rounded-full border-4 border-teal-400/30 flex items-center justify-center animate-ping absolute"></div>
-              <div className="w-16 h-16 rounded-full border-4 border-teal-500 flex items-center justify-center relative bg-[#0A4D8C] shadow-lg">
+              <div className="w-16 h-16 rounded-full border-4 border-teal-500/20 flex items-center justify-center animate-ping absolute"></div>
+              <div className="w-16 h-16 rounded-full border-4 border-teal-500 flex items-center justify-center relative bg-[#020b14] shadow-2xl">
                 <HeartPulse size={30} className="text-teal-400 animate-pulse" />
               </div>
             </div>
-            <h2 className="text-lg font-bold tracking-tight mt-6 uppercase font-sans">Sri Jhansi Hospital</h2>
-            <p className="text-[10px] text-teal-300 uppercase tracking-widest mt-1">Ortho & Neuro Rehabilitation</p>
-            <p className="text-[9px] text-blue-200 mt-4 font-mono font-bold tracking-widest">PILER TOWN HUB</p>
+            <h2 className="text-lg font-extrabold tracking-widest mt-6 uppercase font-sans">Sri Jhansi Hospital</h2>
+            <p className="text-[9px] text-teal-400 uppercase font-bold tracking-widest mt-1.5 font-mono">Securing Patient Outcomes...</p>
           </div>
         </div>
       )}
 
-      {/* TOP COMPACT HELPLINE ADVISORY */}
-      <div className="bg-[#0A4D8C] text-white px-4 md:px-8 py-2 flex flex-col sm:flex-row justify-between items-center text-[11px] font-semibold tracking-wide border-b border-blue-900 shadow-sm relative z-20">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1"><Flame size={12} className="text-red-405 animate-pulse" /> 24/7 Trauma Emergency Support</span>
-          <span className="opacity-40 hidden md:inline">|</span>
-          <span className="hidden md:inline text-slate-200">Sri Jhansi Ortho & Neuro Rehabilitation Center</span>
-        </div>
-        <div className="flex items-center gap-4 mt-1 sm:mt-0">
-          <a href={`tel:${deskLine1.phone}`} className="hover:underline flex items-center gap-1 text-teal-300">
-            <Phone size={11} /> Dial Hotline: {deskLine1.phone}
-          </a>
-        </div>
-      </div>
 
-      {/* HEADER NAVBAR */}
-      <header className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-250 dark:border-slate-800 px-4 md:px-8 py-4 flex justify-between items-center z-40 transition-colors duration-300 shadow-xs">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 bg-gradient-to-tr from-[#0A4D8C] to-teal-500 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md">
-            <HeartPulse size={20} className="animate-pulse" />
+
+      {/* 3. PREMIUM MULTI-PAGE GLASSMORPHIC HEADER */}
+      <header className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 py-4 flex justify-between items-center z-40 transition-all duration-300 shadow-xs">
+        
+        {/* Hospital Branding */}
+        <div 
+          onClick={() => handlePageChange('home')}
+          className="flex items-center gap-3 cursor-pointer group"
+        >
+          <div className="w-10 h-10 bg-[#0A4D8C] rounded-xl flex items-center justify-center text-white shrink-0 shadow-md group-hover:scale-102 transition-transform">
+            <HeartPulse size={20} />
           </div>
-          <div>
-            <span className="font-sans font-black text-slate-900 dark:text-white text-base md:text-lg tracking-tight leading-none uppercase block">
-              Sri Jhansi Hospital
+          <div className="flex flex-col text-left">
+            <span className="font-sans font-black text-slate-900 dark:text-white text-sm md:text-base tracking-tight leading-none uppercase">
+              Sri Jhansi
             </span>
-            <span className="text-[9px] text-[#14B8A6] font-bold uppercase tracking-widest leading-none block mt-0.5">
-              Multispeciality care &middot; Piler
+            <span className="font-sans font-black text-slate-900 dark:text-white text-sm md:text-base tracking-tight leading-none uppercase mt-0.5">
+              Hospital
+            </span>
+            <span className="text-[8px] md:text-[9.5px] text-teal-600 dark:text-teal-400 font-extrabold uppercase tracking-widest leading-none mt-1">
+              Multi-Speciality Rehab
             </span>
           </div>
         </div>
 
-        {/* Minimal Navigation menu - Anchor links on single-page */}
-        <nav className="hidden md:flex gap-6 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          <a href="#services-dashboard" className="hover:text-[#0A4D8C] dark:hover:text-teal-400 transition-colors">Our Services</a>
-          <a href="#doctors" className="hover:text-[#0A4D8C] dark:hover:text-teal-400 transition-colors">Consultant Team</a>
-          <a href="#testimonials" className="hover:text-[#0A4D8C] dark:hover:text-teal-400 transition-colors">Patient Reviews</a>
-          <a href="#contact" className="hover:text-[#0A4D8C] dark:hover:text-teal-400 transition-colors">Location & Contact</a>
+        {/* Dynamic Multi-Page Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {[
+            { id: 'home', label: 'Home' },
+            { id: 'about', label: 'About Us' },
+            { id: 'services', label: 'Services' },
+            { id: 'gallery', label: 'Gallery' },
+            { id: 'testimonials', label: 'Testimonials' },
+            { id: 'contact', label: 'Contact' }
+          ].map((item) => {
+            const isActive = activePage === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handlePageChange(item.id)}
+                className={`py-1.5 relative group transition-colors cursor-pointer ${
+                  isActive 
+                    ? 'text-blue-700 dark:text-teal-400 font-black' 
+                    : 'hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>{item.label}</span>
+                {/* Active indicator underline */}
+                <span className={`absolute bottom-0 left-0 h-0.5 bg-blue-600 dark:bg-teal-400 transition-all ${
+                  isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                }`}></span>
+              </button>
+            );
+          })}
         </nav>
 
-        <div className="flex items-center gap-3">
+        {/* Right side Actions Row */}
+        <div className="flex items-center gap-2.5">
+          
           {/* Light/Dark Toggle */}
           <button 
             onClick={handleToggleDarkMode}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-[#0A4D8C] dark:hover:text-teal-400 transition-all cursor-pointer"
-            title="Switch Visual Theme"
-            id="themeToggleBtn"
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-blue-700 dark:hover:text-teal-400 transition-all cursor-pointer shadow-xs"
+            title="Switch Theme"
           >
             {darkMode ? <Sun size={15} /> : <Moon size={15} />}
           </button>
 
-          {/* Call Primary Hub Button */}
+          {/* Vercel Reference "CALL SUPPORT" outline button */}
           <a 
-            href="tel:9440571584"
-            className="bg-[#14B8A6] hover:bg-teal-605 text-white px-3 md:px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-teal-500/10 flex items-center gap-1.5"
-            id="headerCallBtn"
+            href={`tel:${deskLine2.phone}`}
+            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 bg-white hover:bg-slate-50 dark:bg-transparent dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all"
           >
-            <Phone size={12} />
-            <span className="hidden sm:inline">Call Representative</span>
+            <Phone size={11} className="text-blue-600 dark:text-teal-400" />
+            <span>Call Support</span>
           </a>
+
+          {/* Vercel Reference "CONNECT NOW" filled button */}
+          <button 
+            onClick={() => handlePageChange('contact')}
+            className="hidden sm:inline-block px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-[11px] font-extrabold uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
+          >
+            Connect Now
+          </button>
+
+          {/* Mobile hamburger button */}
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2.5 rounded-xl bg-slate-100 dark:bg-slate-850 text-slate-600 dark:text-slate-300 cursor-pointer"
+          >
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
+
         </div>
       </header>
 
-      {/* HERO SECTION - COMPACT & CREDIBLE */}
-      <section className="relative py-8 md:py-16 bg-gradient-to-b from-white to-slate-100 dark:from-slate-900 dark:to-slate-950 transition-colors duration-300 border-b border-slate-200 dark:border-slate-850">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-center">
-            
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-5 text-left">
-              
-              <div className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/40 text-[#0A4D8C] dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-                <ShieldCheck size={13} className="text-teal-500" />
-                Trusted Town Healthcare Hub
-              </div>
-
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-sans tracking-tight font-extrabold text-slate-900 dark:text-white leading-tight">
-                Advanced <span className="text-[#0A4D8C] dark:text-teal-400">Multi-Speciality Care</span> & Specialist Rehabilitation
-              </h1>
-
-              <p className="text-slate-650 dark:text-slate-350 text-xs md:text-sm leading-relaxed max-w-2xl">
-                Sri Jhansi Hospital (Ortho & Neuro Rehabilitation Center) provides highly coordinated 24-hour trauma support, bone fracture reductions, neurosurgeries, and clinical physical therapies. We focus on transparent clinical outcomes designed to restore health and independence for the Piler community.
-              </p>
-
-              {/* Direct Quick Info Boxes */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                <div className="bg-white/90 dark:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Clinical Board</span>
-                  <span className="text-xs font-extrabold text-slate-800 dark:text-white">8+ Consultants</span>
-                </div>
-                <div className="bg-white/90 dark:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Trauma Response</span>
-                  <span className="text-xs font-extrabold text-[#0A4D8C] dark:text-teal-400">24/7 Red Zone Bays</span>
-                </div>
-                <div className="bg-white/90 dark:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 shadow-2xs">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Location</span>
-                  <span className="text-xs font-extrabold text-slate-800 dark:text-white">Tirupati Road, Piler</span>
-                </div>
-              </div>
-
-              {/* Minimal Dial action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-3">
-                <a 
-                  href="tel:9440571584"
-                  className="px-6 py-3.5 bg-[#0A4D8C] hover:bg-blue-800 text-white font-bold text-xs uppercase tracking-wider rounded-xl text-center shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Phone size={13} />
-                  Call Main Desk (9440571584)
-                </a>
-                <a 
-                  href="https://wa.me/919440571584?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20have%20a%20clinical%20question."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-6 py-3.5 border-2 border-green-500/35 hover:border-green-500 text-green-600 dark:text-green-400 font-bold text-xs uppercase tracking-wider rounded-xl text-center transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  💬 Inquire on WhatsApp
-                </a>
-              </div>
-
-            </div>
-
-            {/* Right Hospital Tour Video Player */}
-            <div className="lg:col-span-5 relative mt-6 lg:mt-0">
-              <div className="relative max-w-md mx-auto">
-                {/* Glowing subtle background card accent */}
-                <div className="absolute inset-2 bg-gradient-to-tr from-[#0A4D8C] to-teal-500 rounded-3xl opacity-15 rotate-2 scale-102 blur-sm pointer-events-none"></div>
-                <div className="relative bg-white dark:bg-slate-900 p-2.5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden">
-                  
-                  {/* Video Screen */}
-                  <div className="rounded-2xl overflow-hidden aspect-video sm:aspect-square max-h-[360px] bg-slate-950 relative group/video shadow-inner flex items-center justify-center min-h-[300px]">
-                    {videoError ? (
-                      <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center gap-4 z-20">
-                        <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 animate-bounce">
-                          <AlertTriangle size={24} />
-                        </div>
-                        <div className="space-y-1">
-                          <h4 className="text-sm font-bold text-white">Stream Loading Blocked</h4>
-                          <p className="text-[10px] text-slate-400 max-w-xs leading-relaxed">
-                            The direct MP4 stream was blocked by browser sandbox or expired. Select an ultra-reliable YouTube preset or Google CDN video below.
-                          </p>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs pt-1">
-                          <button
-                            onClick={() => {
-                              const newUrl = 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
-                              setVideoUrl(newUrl);
-                              localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
-                              setVideoError(false);
-                              setVideoPlaying(true);
-                            }}
-                            className="flex-1 py-2 px-3 bg-[#0A4D8C] hover:bg-blue-800 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            <Play size={10} className="fill-white" />
-                            YouTube Tour
-                          </button>
-                          <button
-                            onClick={() => {
-                              const newUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-                              setVideoUrl(newUrl);
-                              localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
-                              setVideoError(false);
-                              setVideoPlaying(true);
-                            }}
-                            className="flex-1 py-2 px-3 bg-teal-600 hover:bg-teal-550 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            <HeartPulse size={10} />
-                            Google CDN
-                          </button>
-                        </div>
-                      </div>
-                    ) : isYouTubeUrl(videoUrl) ? (
-                      <iframe
-                        src={getYouTubeEmbed(videoUrl)}
-                        title="Sri Jhansi Hospital Youtube Video player"
-                        className="w-full h-full border-0 absolute inset-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        onLoad={() => setVideoLoading(false)}
-                      ></iframe>
-                    ) : (
-                      <video
-                        ref={videoRef}
-                        src={videoUrl}
-                        className="w-full h-full object-cover"
-                        loop
-                        muted={videoMuted}
-                        playsInline
-                        autoPlay
-                        preload="auto"
-                        onLoadStart={() => setVideoLoading(true)}
-                        onWaiting={() => setVideoLoading(true)}
-                        onPlaying={() => setVideoLoading(false)}
-                        onCanPlay={() => setVideoLoading(false)}
-                        onLoadedData={() => setVideoLoading(false)}
-                        onError={() => {
-                          console.log('Video stream error, skipping loader');
-                          setVideoError(true);
-                          setVideoLoading(false);
-                        }}
-                      />
-                    )}
-
-                    {/* Loader Overlay */}
-                    {videoLoading && !videoError && (
-                      <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-30 flex flex-col items-center justify-center gap-3">
-                        <div className="relative flex items-center justify-center">
-                          <div className="w-12 h-12 border-4 border-teal-500/30 border-t-teal-500 rounded-full animate-spin"></div>
-                          <HeartPulse size={20} className="text-teal-400 absolute animate-pulse" />
-                        </div>
-                        <div className="text-center">
-                          <p className="text-xs font-semibold text-white tracking-wide">Connecting Stream...</p>
-                          <p className="text-[9px] text-slate-400 mt-1 font-mono">Buffered Range Accessing</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Dark gradient overlay for titles & quick-action buttons */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/45 pointer-events-none z-10"></div>
-
-                    {/* Overlay header */}
-                    <div className="absolute top-3 left-3 right-3 z-20 flex justify-between items-center pointer-events-none">
-                      <div className="px-2.5 py-1 bg-teal-500/85 backdrop-blur-md text-white text-[9px] font-sans font-bold tracking-widest uppercase rounded-lg flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                        Hospital Tour Video
-                      </div>
-                      
-                      <button 
-                        onClick={() => {
-                          setTempUrlInput(videoUrl);
-                          setShowVideoModal(true);
-                        }}
-                        className="p-1.5 bg-black/60 hover:bg-[#0A4D8C] text-white hover:text-white rounded-lg transition-all cursor-pointer pointer-events-auto border border-white/10"
-                        title="Click to paste another video or youtube link"
-                      >
-                        <Settings size={12} />
-                      </button>
-                    </div>
-
-                    {/* Micro controls on top of video - Only for direct HTML5 MP4 */}
-                    {!isYouTubeUrl(videoUrl) && (
-                      <div className="absolute bottom-3 left-3 right-3 z-20 flex justify-between items-center pointer-events-auto">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={handleTogglePlay}
-                            className="w-7 h-7 bg-white/90 hover:bg-white text-slate-900 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer"
-                          >
-                            {videoPlaying ? <Pause size={10} className="fill-slate-900" /> : <Play size={10} className="fill-slate-900 ml-0.5" />}
-                          </button>
-                          <button
-                            onClick={handleToggleMute}
-                            className="w-7 h-7 bg-black/65 hover:bg-black/80 text-white rounded-full flex items-center justify-center border border-white/10 transition-all cursor-pointer"
-                          >
-                            {videoMuted ? <VolumeX size={10} /> : <Volume2 size={10} />}
-                          </button>
-                        </div>
-
-                        <span className="text-[9px] font-mono font-bold text-white/80 bg-black/40 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                          {videoPlaying ? 'Looping' : 'Paused'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info Footer under Video */}
-                  <div className="mt-3.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-850 flex items-center justify-between text-xs">
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Video Feed</p>
-                      <button 
-                        onClick={() => {
-                          setTempUrlInput(videoUrl);
-                          setShowVideoModal(true);
-                        }}
-                        className="font-extrabold text-slate-800 dark:text-white mt-0.5 flex items-center gap-1 hover:text-[#0A4D8C] dark:hover:text-teal-400 transition-colors cursor-pointer"
-                      >
-                        <Link2 size={11} className="text-teal-500" />
-                        Update Video Link
-                      </button>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Orientation</p>
-                      <p className="font-extrabold text-teal-600 dark:text-teal-400 mt-0.5">Live Facility Tour</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* CORE CLINICAL DICTIONARY - MINIMAL SHOWCASE */}
-      <section id="services-dashboard" className="py-16 bg-white dark:bg-slate-900 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+      {/* 4. RESPONSIVE MOBILE NAVIGATION PANEL */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-4 space-y-3 relative z-39 animate-fade-in text-left">
+          <p className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest pl-2">Jump to Page Section</p>
           
-          <div className="text-center max-w-3xl mx-auto mb-10 space-y-2">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-teal-500 bg-teal-500/5 px-2.5 py-1 rounded-full">Explore Facilities</span>
-            <h2 className="text-2xl md:text-3xl font-sans tracking-tight font-extrabold text-slate-900 dark:text-white">
-              Clinical Registry & Available Services
-            </h2>
-            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-              We consolidated all our specialties, diagnostic setups, & consulting panel information so you can find exactly what you need with zero clutter.
-            </p>
-          </div>
-
-          {/* MAIN THREE TABS SELECTOR */}
-          <div className="flex justify-center mb-8 border-b border-slate-200 dark:border-slate-800 max-w-md mx-auto gap-2">
-            <button
-              onClick={() => setActiveTab('departments')}
-              className={`flex-1 pb-3 text-xs md:text-sm font-bold border-b-2 transition-all cursor-pointer ${
-                activeTab === 'departments' 
-                  ? 'border-[#0A4D8C] dark:border-teal-400 text-[#0A4D8C] dark:text-teal-400' 
-                  : 'border-transparent text-slate-400 hover:text-slate-605'
-              }`}
-            >
-              🩺 Specialties
-            </button>
-            <button
-              onClick={() => setActiveTab('diagnostics')}
-              className={`flex-1 pb-3 text-xs md:text-sm font-bold border-b-2 transition-all cursor-pointer ${
-                activeTab === 'diagnostics' 
-                  ? 'border-[#0A4D8C] dark:border-teal-400 text-[#0A4D8C] dark:text-teal-400' 
-                  : 'border-transparent text-slate-400 hover:text-slate-605'
-              }`}
-            >
-              🔬 Diagnostics
-            </button>
-            <button
-              onClick={() => setActiveTab('doctors')}
-              className={`flex-1 pb-3 text-xs md:text-sm font-bold border-b-2 transition-all cursor-pointer ${
-                activeTab === 'doctors' 
-                  ? 'border-[#0A4D8C] dark:border-teal-400 text-[#0A4D8C] dark:text-teal-400' 
-                  : 'border-transparent text-slate-400 hover:text-slate-605'
-              }`}
-            >
-              👨‍⚕️ Core Doctors ({DOCTORS.length})
-            </button>
-          </div>
-
-          {/* TAB 1 CONTENT: SPECIALTY DEPARTMENTS */}
-          {activeTab === 'departments' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fade-in text-left">
-              {DEPARTMENTS.map((dept) => (
-                <div 
-                  key={dept.id}
-                  className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-805 flex items-center gap-4 hover:border-teal-500/40 dark:hover:border-teal-500/30 transition-all duration-200"
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { id: 'home', label: 'Home' },
+              { id: 'about', label: 'About Us' },
+              { id: 'services', label: 'Services' },
+              { id: 'gallery', label: 'Gallery' },
+              { id: 'testimonials', label: 'Testimonials' },
+              { id: 'contact', label: 'Contact' }
+            ].map((item) => {
+              const isActive = activePage === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handlePageChange(item.id)}
+                  className={`w-full px-4 py-3 text-left rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    isActive 
+                      ? 'bg-slate-950 dark:bg-slate-800 text-white' 
+                      : 'bg-slate-50 dark:bg-slate-950 text-slate-500 hover:text-slate-950 dark:hover:text-white'
+                  }`}
                 >
-                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#0A4D8C] dark:text-teal-400 flex items-center justify-center shrink-0">
-                    <Stethoscope size={18} />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">{dept.name}</h4>
-                    <p className="text-[10px] text-slate-400 font-medium uppercase mt-0.5">Sri Jhansi Division</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* TAB 2 CONTENT: DIAGNOSTIC & LAB SERVICES */}
-          {activeTab === 'diagnostics' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-fade-in text-left">
-              {SERVICES.map((serv) => (
-                <div 
-                  key={serv.id}
-                  className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800/80 hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all duration-300 flex flex-col justify-between"
-                >
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-start">
-                      <div className="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center">
-                        <Activity size={15} />
-                      </div>
-                      {serv.highlight && (
-                        <span className="bg-blue-50 dark:bg-blue-900/20 text-[#0A4D8C] dark:text-blue-300 font-mono text-[9px] font-bold uppercase px-2 py-0.5 rounded">
-                          {serv.highlight}
-                        </span>
-                      )}
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{serv.name}</h4>
-                      <p className="text-[11px] text-slate-400 uppercase tracking-widest mt-0.5 font-bold">{serv.category} Facility</p>
-                    </div>
-
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
-                      {serv.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Piler Branch Service Line</span>
-                    <a href="tel:9440571584" className="text-[#0A4D8C] dark:text-teal-400 font-bold hover:underline">
-                      Inquire Timings
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* TAB 3 CONTENT: DETAILED DOCTOR TEAM (HIGH TRUST) */}
-          {activeTab === 'doctors' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in text-left">
-              {DOCTORS.map((doc) => (
-                <div 
-                  key={doc.id}
-                  className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[220px]"
-                >
-                  <div className="space-y-4">
-                    {/* Top Row */}
-                    <div className="flex gap-4">
-                      {/* Doctor Portrait Photo */}
-                      {doc.imageUrl ? (
-                        <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border border-slate-200/80 dark:border-slate-800 shadow-sm bg-slate-50">
-                          <img 
-                            src={doc.imageUrl} 
-                            alt={doc.name} 
-                            className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
-                            referrerPolicy="no-referrer"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 rounded-2xl bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold text-base shrink-0 border border-teal-150/40 dark:border-teal-900/30">
-                          {doc.name.split(' ').slice(-2).map(n => n[0]).join('')}
-                        </div>
-                      )}
-
-                      <div>
-                        <h4 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">{doc.name}</h4>
-                        <p className="text-xs font-bold text-[#0A4D8C] dark:text-teal-400 mt-0.5">{doc.role}</p>
-                      </div>
-                    </div>
-
-                    {/* Qualifications & Specialty details */}
-                    <div className="space-y-2 text-xs">
-                      <div className="flex items-start gap-1.5">
-                        <GraduationCap size={13} className="text-slate-400 shrink-0 mt-0.5" />
-                        <span className="text-slate-600 dark:text-slate-350 leading-normal">
-                          <strong>Credentials:</strong> {doc.qualification}
-                        </span>
-                      </div>
-
-                      {doc.fellowship && (
-                        <div className="flex items-start gap-1.5">
-                          <Award size={13} className="text-slate-400 shrink-0 mt-0.5" />
-                          <span className="text-slate-505 dark:text-slate-400 leading-normal">
-                            <strong>Fellowship:</strong> {doc.fellowship}
-                          </span>
-                        </div>
-                      )}
-
-                      {doc.experience && (
-                        <p className="text-[11px] text-slate-400 leading-normal italic pl-4 border-l border-slate-200 dark:border-slate-800">
-                          {doc.experience}
-                        </p>
-                      )}
-
-                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal pt-1.5">
-                        {doc.bio}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                    <span className="text-slate-400 font-medium">OPD availability: Mon - Sat</span>
-                    <a 
-                      href="tel:9440571584"
-                      className="text-[#0A4D8C] dark:text-teal-400 font-bold hover:underline flex items-center gap-0.5"
-                    >
-                      Dial Consultant Desk <ArrowRight size={12} />
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-        </div>
-      </section>
-
-      {/* COMPACT TESTIMONIAL QUOTE HIGHLIGHT */}
-      <section id="testimonials" className="py-16 bg-slate-100 dark:bg-slate-950/60 transition-colors duration-300 border-t border-b border-slate-200 dark:border-slate-900">
-        <div className="max-w-4xl mx-auto px-4">
-          
-          <div className="text-center mb-8">
-            <span className="text-[9px] font-mono font-bold text-[#0A4D8C] dark:text-teal-400 uppercase tracking-widest">Local Recoveries verified</span>
-            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mt-1">
-              Patient Outcomes in Piler Area
-            </h3>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden text-left">
-            
-            {/* Decal Quote Icon */}
-            <div className="absolute right-6 top-4 text-8xl font-serif text-teal-450/10 dark:text-teal-400/5 select-none font-black leading-none">
-              “
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-6 items-start">
-              
-              <div className="shrink-0 w-16 h-16 rounded-2xl bg-teal-50 dark:bg-slate-800 flex flex-col items-center justify-center border border-teal-100 dark:border-slate-700 text-[#0A4D8C] dark:text-teal-400">
-                <span className="text-lg font-black font-sans leading-none">
-                  {TESTIMONIALS[activeReviewIdx].name.split(' ').slice(-1)[0][0]}
-                </span>
-                <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">Age: {TESTIMONIALS[activeReviewIdx].age}</span>
-              </div>
-
-              <div className="flex-1 space-y-3">
-                <div className="flex gap-1">
-                  {[...Array(TESTIMONIALS[activeReviewIdx].rating)].map((_, i) => (
-                    <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-
-                <p className="text-slate-700 dark:text-slate-350 text-xs md:text-sm font-medium italic leading-relaxed">
-                  "{TESTIMONIALS[activeReviewIdx].review}"
-                </p>
-
-                <div className="pt-2">
-                  <h4 className="font-bold text-slate-900 dark:text-white text-xs">
-                    {TESTIMONIALS[activeReviewIdx].name}
-                  </h4>
-                  <p className="text-[10.5px] text-teal-600 dark:text-teal-400 font-bold mt-0.5">
-                    Recovered: {TESTIMONIALS[activeReviewIdx].condition}
-                  </p>
-                  <p className="text-[9.5px] text-slate-400 mt-0.5">
-                    Treated under medical guidance of: <strong className="text-slate-600 dark:text-slate-200">{TESTIMONIALS[activeReviewIdx].treatmentDoctor}</strong>
-                  </p>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Slider triggers */}
-            <div className="flex justify-between items-center mt-6 pt-5 border-t border-slate-100 dark:border-slate-800">
-              <span className="text-[9.5px] text-slate-400 font-mono">Outcome {activeReviewIdx + 1} of {TESTIMONIALS.length} verified town charts</span>
-              <div className="flex items-center gap-1.5">
-                <button 
-                  onClick={handlePrevReview} 
-                  className="p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer text-xs"
-                >
-                  &larr; Prev
+                  {item.label}
                 </button>
-                <button 
-                  onClick={handleNextReview} 
-                  className="p-1.5 border border-slate-200 dark:border-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 cursor-pointer text-xs"
-                >
-                  Next &rarr;
-                </button>
-              </div>
-            </div>
-
+              );
+            })}
           </div>
 
-        </div>
-      </section>
-
-      {/* OUTSIDE CONTACT, EMERGENCY SUMMARY & MAPPED LANDMARKS */}
-      <section id="contact" className="py-24 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-300 transition-colors duration-300 relative overflow-hidden text-left border-t border-slate-200 dark:border-slate-900">
-        {/* Abstract futuristic glowing background circles */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-teal-500/5 dark:bg-teal-500/[0.03] rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-10 w-80 h-80 bg-blue-500/5 dark:bg-blue-500/[0.03] rounded-full blur-[100px] pointer-events-none"></div>
-
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
-          
-          {/* Header section of Section */}
-          <div className="mb-16 max-w-3xl">
-            <h2 className="text-3xl sm:text-4xl font-extrabold font-sans text-slate-900 dark:text-white tracking-tight leading-tight">
-              Location & <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-[#0A4D8C] dark:from-teal-400 dark:to-blue-400">Emergency Access</span>
-            </h2>
-            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400 font-medium max-w-2xl leading-relaxed">
-              Strategically positioned directly on the major Tirupati Bypass Highway in Piler for seamless trauma ingress, ambulance coordinates, and instant care accessibility.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+            <a 
+              href={`tel:${deskLine2.phone}`}
+              className="w-full py-3 bg-white dark:bg-transparent border border-slate-250 dark:border-slate-800 text-center rounded-xl text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1.5"
+            >
+              <Phone size={12} className="text-blue-600" />
+              <span>Call Support ({deskLine2.phone})</span>
+            </a>
             
-            {/* Coordinates & Instructions column */}
-            <div className="lg:col-span-5 flex flex-col justify-between gap-6">
-              <div className="space-y-4">
-                
-                {/* Physical Postal Address card */}
-                <div className="bg-white dark:bg-slate-900/40 p-6 rounded-2xl border border-slate-200/85 dark:border-slate-900/80 hover:border-teal-200 dark:hover:border-slate-800 hover:shadow-md dark:hover:shadow-none transition-all duration-300 group shadow-xs">
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-100/60 dark:border-teal-500/10 group-hover:bg-teal-100 dark:group-hover:bg-teal-500/20 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-all duration-300">
-                      <MapPin size={18} />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-sans">Postal & Physical Location</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
-                        2-279, Sri Jhansi Hospital Campus,<br />
-                        Tirupati Road, Piler Town, Annamayya District, <br />
-                        Andhra Pradesh - 517214, India.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            <button
+              onClick={() => handlePageChange('contact')}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-xl text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
+            >
+              Connect Now
+            </button>
+          </div>
+        </div>
+      )}
 
-                {/* Emergency Contact & Liaison Desk - Dial-capable */}
-                <div className="bg-white dark:bg-slate-900/40 p-6 rounded-2xl border border-slate-200/85 dark:border-slate-900/80 hover:border-teal-200 dark:hover:border-slate-800 hover:shadow-md dark:hover:shadow-none transition-all duration-300 group shadow-xs">
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-100/60 dark:border-teal-500/10 group-hover:bg-teal-100 dark:group-hover:bg-teal-500/20 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-all duration-300">
-                      <Phone size={18} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-sans">Emergency & Liaison Hotlines</h4>
-                        <button 
-                          onClick={() => {
-                            setTempDesk1Label(deskLine1.label);
-                            setTempDesk1Phone(deskLine1.phone);
-                            setTempDesk2Label(deskLine2.label);
-                            setTempDesk2Phone(deskLine2.phone);
-                            setTempLiaisonLabel(liaisonDesk.label);
-                            setTempLiaisonPhone(liaisonDesk.phone);
-                            setShowContactModal(true);
-                          }}
-                          className="text-slate-400 hover:text-teal-500 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                          title="Edit Hotlines"
-                        >
-                          <Settings size={14} />
-                        </button>
-                      </div>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1.5">
-                        Click below to initiate dial response:
-                      </p>
-                      
-                      <div className="mt-3 flex flex-col gap-2">
-                        <a 
-                          href={`tel:${deskLine1.phone}`} 
-                          className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 hover:bg-teal-50 dark:hover:bg-teal-950/30 border border-slate-200 dark:border-slate-900 hover:border-teal-200 dark:hover:border-teal-900 text-slate-705 dark:text-slate-300 hover:text-teal-700 dark:hover:text-teal-300 transition-all font-mono text-[11px] font-bold group/btn focus:outline-none"
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-teal-550 dark:bg-teal-400 animate-pulse"></span>
-                            {deskLine1.label}
-                          </span>
-                          <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-teal-600 dark:text-teal-400 font-extrabold group-hover/btn:bg-[#0A4D8C] group-hover/btn:text-white transition-all">
-                            {deskLine1.phone}
-                          </span>
-                        </a>
+      {/* 5. MAIN CONTENT DISPLAY (WITH TRANSITIONS & ENCAPSULATION) */}
+      <main className="flex-grow max-w-7xl mx-auto w-full px-4 md:px-6 lg:px-8 py-8 md:py-12">
+        <div className="animate-fade-in">
+          
+          {activePage === 'home' && (
+            <HomeView 
+              videoUrl={videoUrl}
+              videoPlaying={videoPlaying}
+              videoMuted={videoMuted}
+              videoLoading={videoLoading}
+              videoError={videoError}
+              setVideoUrl={setVideoUrl}
+              setVideoPlaying={setVideoPlaying}
+              setVideoMuted={setVideoMuted}
+              setVideoLoading={setVideoLoading}
+              setVideoError={setVideoError}
+              setShowVideoModal={setShowVideoModal}
+              setTempUrlInput={setTempUrlInput}
+              videoRef={videoRef}
+              isYouTubeUrl={isYouTubeUrl}
+              getYouTubeEmbed={getYouTubeEmbed}
+              handleTogglePlay={handleTogglePlay}
+              handleToggleMute={handleToggleMute}
+              onNavigate={handlePageChange}
+              deskLinePhone={deskLine1.phone}
+            />
+          )}
 
-                        <a 
-                          href={`tel:${deskLine2.phone}`} 
-                          className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 hover:bg-teal-50 dark:hover:bg-teal-950/30 border border-slate-200 dark:border-slate-900 hover:border-teal-200 dark:hover:border-teal-900 text-slate-705 dark:text-slate-300 hover:text-teal-700 dark:hover:text-teal-300 transition-all font-mono text-[11px] font-bold group/btn focus:outline-none"
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-teal-550 dark:bg-teal-400"></span>
-                            {deskLine2.label}
-                          </span>
-                          <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-teal-600 dark:text-teal-400 font-extrabold group-hover/btn:bg-[#0A4D8C] group-hover/btn:text-white transition-all">
-                            {deskLine2.phone}
-                          </span>
-                        </a>
+          {activePage === 'about' && (
+            <AboutView onNavigate={handlePageChange} />
+          )}
 
-                        <a 
-                          href={`tel:${liaisonDesk.phone}`} 
-                          className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 hover:bg-teal-50 dark:hover:bg-teal-950/30 border border-slate-200 dark:border-slate-900 hover:border-teal-200 dark:hover:border-teal-900 text-slate-705 dark:text-slate-300 hover:text-teal-700 dark:hover:text-teal-300 transition-all font-mono text-[11px] font-bold group/btn focus:outline-none"
-                        >
-                          <span className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-teal-555 dark:bg-teal-400"></span>
-                            {liaisonDesk.label}
-                          </span>
-                          <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-teal-600 dark:text-teal-400 font-extrabold group-hover/btn:bg-[#0A4D8C] group-hover/btn:text-white transition-all">
-                            {liaisonDesk.phone}
-                          </span>
-                        </a>
-                      </div>
+          {activePage === 'services' && (
+            <ServicesView 
+              activeTab={servicesTab}
+              setActiveTab={setServicesTab}
+              selectedDeptId={selectedDeptId}
+              setSelectedDeptId={setSelectedDeptId}
+              doctorSearchQuery={doctorSearchQuery}
+              setDoctorSearchQuery={setDoctorSearchQuery}
+              doctorSpecialtyFilter={doctorSpecialtyFilter}
+              setDoctorSpecialtyFilter={setDoctorSpecialtyFilter}
+            />
+          )}
 
-                    </div>
-                  </div>
-                </div>
+          {activePage === 'gallery' && (
+            <GalleryView />
+          )}
 
-                {/* Timings Card */}
-                <div className="bg-white dark:bg-slate-900/40 p-6 rounded-2xl border border-slate-200/85 dark:border-slate-900/80 hover:border-teal-200 dark:hover:border-slate-800 hover:shadow-md dark:hover:shadow-none transition-all duration-300 group shadow-xs">
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-100/60 dark:border-teal-500/10 group-hover:bg-teal-100 dark:group-hover:bg-teal-500/20 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-all duration-300">
-                      <Clock size={18} />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-sans">Op-Hours & Consultations</h4>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
-                        OPD Consultations: Monday to Saturday (9:00 AM - 6:00 PM)<br />
-                        Poly-Clinic & Trauma Response: <strong className="text-teal-600 dark:text-teal-400">Operational 24/7 Hours</strong>
-                      </p>
-                    </div>
-                  </div>
-                </div>
+          {activePage === 'testimonials' && (
+            <TestimonialsView 
+              reviewsList={reviewsList}
+              reviewSearchQuery={reviewSearchQuery}
+              setReviewSearchQuery={setReviewSearchQuery}
+              reviewRatingFilter={reviewRatingFilter}
+              setReviewRatingFilter={setReviewRatingFilter}
+              reviewDoctorFilter={reviewDoctorFilter}
+              setReviewDoctorFilter={setReviewDoctorFilter}
+              reviewSortBy={reviewSortBy}
+              setReviewSortBy={setReviewSortBy}
+              onAddReviewClick={() => {
+                setFormSuccessMessage('');
+                setShowReviewModal(true);
+              }}
+              onVerifyReceiptClick={() => {
+                setReceiptResult(null);
+                setReceiptError('');
+                setReceiptInput('');
+                setShowReceiptModal(true);
+              }}
+              upvoteReview={handleUpvoteReview}
+              upvotedReviewIds={upvotedReviewIds}
+            />
+          )}
 
+          {activePage === 'contact' && (
+            <ContactView 
+              desk1Label={deskLine1.label}
+              desk1Phone={deskLine1.phone}
+              desk2Label={deskLine2.label}
+              desk2Phone={deskLine2.phone}
+              liaisonLabel={liaisonDesk.label}
+              liaisonPhone={liaisonDesk.phone}
+              onUpdateContactClick={triggerUpdateContactModal}
+            />
+          )}
+
+        </div>
+      </main>
+
+      {/* 6. COHESIVE, HIGH-CONTRAST PROFESSIONAL FOOTER */}
+      <footer className="bg-slate-900 text-slate-300 dark:bg-[#020b14] border-t border-slate-800 pt-16 pb-8 text-left text-xs">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-10">
+          
+          {/* Col 1: Brand Info */}
+          <div className="md:col-span-4 space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 bg-[#0A4D8C] rounded-lg flex items-center justify-center text-white shrink-0 shadow-md">
+                <HeartPulse size={16} />
               </div>
+              <span className="font-sans font-black text-white text-sm tracking-widest uppercase">
+                Sri Jhansi Hospital
+              </span>
             </div>
+            
+            <p className="text-slate-400 text-[11px] leading-relaxed font-medium">
+              A standard, accredited orthopedic hospital & neurological physiotherapy rehabilitation center. Dedicated to delivering verifiable clinical success with 100% transparency.
+            </p>
 
-            {/* Immersive Google Map Container Card */}
-            <div className="lg:col-span-7 bg-white dark:bg-slate-900/20 backdrop-blur-md rounded-3xl p-3 border border-slate-200 dark:border-slate-900 flex flex-col justify-between min-h-[440px] relative overflow-hidden group shadow-sm">
-              
-              {/* Actual Map frame wrapper - Live Interactive Google Map */}
-              <div className="relative w-full flex-1 rounded-2xl overflow-hidden border border-slate-150 dark:border-slate-800/80 min-h-[300px] bg-slate-100 dark:bg-slate-950">
-                <iframe
-                  title="Sri Jhansi Hospital Live Google Map Location"
-                  src="https://maps.google.com/maps?q=13.653722,78.950222&t=&z=16&ie=UTF8&iwloc=&output=embed"
-                  className="absolute inset-0 w-full h-full border-0 rounded-2xl opacity-90 dark:opacity-85 hover:opacity-100 transition-opacity duration-300"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-
-                {/* Satellite imagery label badge floating */}
-                <div className="absolute top-4 left-4 z-10 pointer-events-none">
-                  <span className="text-[9px] font-mono font-bold tracking-widest bg-white/90 dark:bg-slate-950/95 backdrop-blur-md text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800/60 px-2.5 py-1 rounded-lg uppercase shadow-sm">
-                    Live Interactive Map
-                  </span>
-                </div>
-              </div>
-
-              {/* Navigation Actions Panel */}
-              <div className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-950/95 rounded-2xl border border-slate-150 dark:border-slate-900 mt-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="text-left font-sans flex-1">
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white">Need Live Navigation Support?</h4>
-                  <p className="text-[11px] text-slate-550 dark:text-slate-400 mt-0.5 leading-normal">
-                    Located near the central bypass junction linking key regional highway coordinates. Accessible online or offline.
-                  </p>
-                </div>
-                
-                <a 
-                  href="https://maps.app.goo.gl/Rxt5asZ9oNBiC5Vf6" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#0A4D8C] hover:bg-blue-700 text-white font-bold text-[11px] uppercase tracking-wider py-3 px-5 rounded-xl transition-all duration-305 cursor-pointer shadow-lg hover:shadow-blue-900/20 shrink-0"
-                >
-                  <span>Open on Google Maps</span>
-                  <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-                </a>
-              </div>
-
+            <div className="space-y-1 text-[11px] text-slate-500 font-mono">
+              <p>📍 Tirupati Bypass Rd, Pileru, AP 517214</p>
+              <p>📝 Reg: Annamayya Clinical Board Registry</p>
             </div>
-
           </div>
 
-          {/* Minimal Bottom Bar */}
-          <div className="mt-20 pt-8 border-t border-slate-200 dark:border-slate-900 flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] text-slate-450 dark:text-slate-500 font-medium font-sans">
-            <p>&copy; {new Date().getFullYear()} Sri Jhansi Hospital & Specialized Ortho-Neuro Rehab. All rights reserved.</p>
-            <p className="flex items-center gap-2">
-              <span>Piler Town Branch, Annamayya Dist, AP</span>
-            </p>
+          {/* Col 2: Specialties shortcut */}
+          <div className="md:col-span-3 space-y-3.5 pl-0 md:pl-4">
+            <h4 className="text-white text-[11px] font-bold uppercase tracking-wider font-sans">Specialised Care</h4>
+            <div className="flex flex-col gap-2 font-medium">
+              <button 
+                onClick={() => { setSelectedDeptId('orthopaedics'); setServicesTab('departments'); handlePageChange('services'); }}
+                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
+              >
+                Orthopaedic Surgery & Fractures
+              </button>
+              <button 
+                onClick={() => { setSelectedDeptId('neuro-spine'); setServicesTab('departments'); handlePageChange('services'); }}
+                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
+              >
+                Neurology & Spine Triage
+              </button>
+              <button 
+                onClick={() => { setSelectedDeptId('stroke-rehab'); setServicesTab('departments'); handlePageChange('services'); }}
+                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
+              >
+                Stroke & Paralysis Rehabilitation
+              </button>
+              <button 
+                onClick={() => { setSelectedDeptId('general-medicine'); setServicesTab('departments'); handlePageChange('services'); }}
+                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
+              >
+                General Medicine & Diagnostics
+              </button>
+            </div>
+          </div>
+
+          {/* Col 3: Nav links */}
+          <div className="md:col-span-2 space-y-3.5">
+            <h4 className="text-white text-[11px] font-bold uppercase tracking-wider font-sans">Navigation</h4>
+            <div className="flex flex-col gap-2 font-medium">
+              <button onClick={() => handlePageChange('home')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Home</button>
+              <button onClick={() => handlePageChange('about')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">About Us</button>
+              <button onClick={() => handlePageChange('services')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Clinical Services</button>
+              <button onClick={() => handlePageChange('gallery')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Hospital Gallery</button>
+              <button onClick={() => handlePageChange('testimonials')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Patient Feedback</button>
+            </div>
+          </div>
+
+          {/* Col 4: Urgent Contact */}
+          <div className="md:col-span-3 space-y-3.5 text-left">
+            <h4 className="text-white text-[11px] font-bold uppercase tracking-wider font-sans">Emergency Desks</h4>
+            <div className="space-y-3 font-medium">
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] space-y-1.5">
+                <p className="text-[10px] text-red-500 font-bold font-mono">PRIMARY INTAKE (24H)</p>
+                <p className="text-white font-extrabold text-xs">{deskLine1.phone}</p>
+                <a href={`tel:${deskLine1.phone}`} className="inline-block text-[9.5px] text-teal-400 font-bold hover:underline">Click to dial helpline →</a>
+              </div>
+              <div className="text-[11px] text-slate-500 leading-normal">
+                OPD consultation desks remain active from Monday to Saturday, 9:00 AM to 6:00 PM. Closed on Sundays.
+              </div>
+            </div>
           </div>
 
         </div>
-      </section>
 
-      {/* UPDATE TOUR VIDEO LINK MODAL FORM */}
+        {/* Bottom Bar: copyright & legal disclaimer */}
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 text-[10px]">
+          <div>
+            &copy; {new Date().getFullYear()} Sri Jhansi Hospital & Rehabilitation Center. All rights reserved.
+          </div>
+          <div className="max-w-md text-center md:text-right text-[9.5px] leading-relaxed">
+            <strong>Disclaimer:</strong> This application acts as a patient review & outcome repository for Sri Jhansi Ortho & Stroke Rehabilitation Clinic. Managed under Director Dr. M. Dinesh Kumar Reddy (Chief Specialist). All reviews are voluntarily supplied and receipt-checked.
+          </div>
+        </div>
+      </footer>
+
+      {/* ========================================================= */}
+      {/* ======================= MODALS ========================== */}
+      {/* ========================================================= */}
+
+      {/* A. CUSTOM TOUR VIDEO LINK OVERLAY MODAL */}
       {showVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in animate-duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in text-left">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
-            <h3 className="font-sans font-extrabold text-lg text-slate-950 dark:text-white mb-2">
+            <h3 className="font-sans font-extrabold text-lg text-slate-950 dark:text-white mb-1.5">
               Set Custom Tour Video URL
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-              Paste a custom hospital video URL or a YouTube watch/embed URL. The clinical dashboard will instantly stream it!
+              Paste a custom mp4 stream URL or a YouTube link. The clinical dashboard will instantly sync and stream it!
             </p>
 
-             <form onSubmit={handleSaveVideoUrl} className="space-y-4">
+            <form onSubmit={handleSaveVideoUrl} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                  Video URL (Direct MP4, WebM, or YouTube Link)
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                  Video URL
                 </label>
                 <input
                   type="text"
                   placeholder="https://example.com/video.mp4 or YouTube URL"
                   value={tempUrlInput}
                   onChange={(e) => setTempUrlInput(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                  className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-medium"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
-                  Or select a high-speed direct stream preset
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+                  High-speed direct stream presets
                 </label>
                 <div className="grid grid-cols-1 gap-2">
                   <button
                     type="button"
                     onClick={() => setTempUrlInput('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')}
-                    className="w-full text-left px-3 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-teal-50 dark:hover:bg-teal-950/20 border border-slate-200 dark:border-slate-800 rounded-xl text-[11px] text-slate-700 dark:text-slate-200 transition-all flex items-center justify-between group"
+                    className="w-full text-left px-3 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-teal-50 dark:hover:bg-teal-950/10 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] text-slate-750 dark:text-slate-200 transition-all flex items-center justify-between font-medium cursor-pointer"
                   >
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-                      Google CDN High-Speed Video
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                      Google CDN High-Speed Video Presets
                     </span>
-                    <span className="text-[9px] text-teal-600 dark:text-teal-400 font-bold font-mono">Instant play</span>
+                    <span className="text-[9px] text-teal-600 dark:text-teal-450 font-bold font-mono">Instant play</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setTempUrlInput('https://www.youtube.com/watch?v=y3YFpXv7o6s')}
-                    className="w-full text-left px-3 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-teal-50 dark:hover:bg-teal-950/20 border border-slate-200 dark:border-slate-800 rounded-xl text-[11px] text-slate-700 dark:text-slate-200 transition-all flex items-center justify-between group"
+                    className="w-full text-left px-3 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-teal-50 dark:hover:bg-teal-950/10 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] text-slate-750 dark:text-slate-200 transition-all flex items-center justify-between font-medium cursor-pointer"
                   >
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                      YouTube Facility Tour (Highly Reliable)
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                      YouTube Facility Tour Video
                     </span>
-                    <span className="text-[9px] text-red-600 dark:text-red-400 font-bold font-mono">Recommended</span>
+                    <span className="text-[9px] text-red-600 dark:text-red-400 font-bold font-mono">Highly Recommended</span>
                   </button>
                 </div>
-              </div>
-
-              <div className="bg-slate-50 dark:bg-slate-950/40 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-800 text-[10px] text-slate-500">
-                💡 <strong>YouTube support:</strong> If you uploaded the video to YouTube, you can paste its link here and it will play instantly in the interactive player!
               </div>
 
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowVideoModal(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+                  className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#0A4D8C] hover:bg-blue-800 dark:bg-teal-600 dark:hover:bg-teal-550 rounded-xl transition-all cursor-pointer"
+                  className="px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all cursor-pointer shadow-md"
                 >
                   Apply & Stream
                 </button>
@@ -1077,112 +807,286 @@ export default function App() {
         </div>
       )}
 
-      {/* UPDATE EMERGENCY CONTACT HOTLINES MODAL FORM */}
+      {/* B. UPDATE HOTLINES ADMINISTRATIVE MODAL */}
       {showContactModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in animate-duration-200">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl relative">
-            <h3 className="font-sans font-extrabold text-lg text-slate-950 dark:text-white mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in text-left">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+            <h3 className="font-sans font-extrabold text-lg text-slate-950 dark:text-white mb-1.5">
               Update Emergency & Liaison Hotlines
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-              Customize the labels and phone numbers of the clinical helpdesks. Changes will immediately synchronize across the entire application interface.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+              Customize the labels and phone numbers. Changes will immediately synchronize across the entire application interface.
             </p>
 
             <form onSubmit={handleSaveContactDetails} className="space-y-4">
-              {/* Desk Line 1 */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
-                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest font-mono">
-                  Line 1 (Primary Emergency)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Label Name</label>
-                    <input
-                      type="text"
-                      value={tempDesk1Label}
-                      onChange={(e) => setTempDesk1Label(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-semibold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
-                    <input
-                      type="text"
-                      value={tempDesk1Phone}
-                      onChange={(e) => setTempDesk1Phone(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-mono"
-                    />
-                  </div>
+              
+              {/* Line 1 */}
+              <div className="space-y-2">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Line 1 Label & Phone</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={tempDesk1Label}
+                    onChange={(e) => setTempDesk1Label(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold"
+                  />
+                  <input
+                    type="text"
+                    value={tempDesk1Phone}
+                    onChange={(e) => setTempDesk1Phone(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                  />
                 </div>
               </div>
 
-              {/* Desk Line 2 */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
-                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest font-mono">
-                  Line 2 (OPD Helpdesk)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Label Name</label>
-                    <input
-                      type="text"
-                      value={tempDesk2Label}
-                      onChange={(e) => setTempDesk2Label(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-semibold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
-                    <input
-                      type="text"
-                      value={tempDesk2Phone}
-                      onChange={(e) => setTempDesk2Phone(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-mono"
-                    />
-                  </div>
+              {/* Line 2 */}
+              <div className="space-y-2">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Line 2 Label & Phone</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={tempDesk2Label}
+                    onChange={(e) => setTempDesk2Label(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold"
+                  />
+                  <input
+                    type="text"
+                    value={tempDesk2Phone}
+                    onChange={(e) => setTempDesk2Phone(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                  />
                 </div>
               </div>
 
-              {/* Liaison Desk */}
-              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
-                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest font-mono">
-                  Line 3 (Liaison & Admin)
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Label Name</label>
-                    <input
-                      type="text"
-                      value={tempLiaisonLabel}
-                      onChange={(e) => setTempLiaisonLabel(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-semibold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
-                    <input
-                      type="text"
-                      value={tempLiaisonPhone}
-                      onChange={(e) => setTempLiaisonPhone(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-mono"
-                    />
-                  </div>
+              {/* Line 3 */}
+              <div className="space-y-2">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">Line 3 Label & Phone</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    value={tempLiaisonLabel}
+                    onChange={(e) => setTempLiaisonLabel(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold"
+                  />
+                  <input
+                    type="text"
+                    value={tempLiaisonPhone}
+                    onChange={(e) => setTempLiaisonPhone(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                  />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 font-sans">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowContactModal(false)}
-                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+                  className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-bold text-white bg-[#0A4D8C] hover:bg-blue-800 dark:bg-teal-600 dark:hover:bg-teal-550 rounded-xl transition-all cursor-pointer shadow-md"
+                  className="px-4 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all cursor-pointer shadow-md"
                 >
-                  Save Changes
+                  Save Hotlines
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* C. PATIENT WRITE REVIEW MODAL FORM */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in text-left overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl relative my-8">
+            <h3 className="font-sans font-extrabold text-lg text-slate-950 dark:text-white mb-1.5">
+              Submit Outpatient Feedback Review
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+              Every review submitted must align with an active consultation. Supply your treatment details and receipt ticket below for database entry validation.
+            </p>
+
+            <form onSubmit={handleSubmitReview} className="space-y-4">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Patient Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. K. Venkat Reddy"
+                    value={formName}
+                    onChange={(e) => setFormName(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Age (Years) *</label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="e.g. 48"
+                    value={formAge}
+                    onChange={(e) => setFormAge(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Clinical Condition Addressed *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Knee Arthroplasty Recovery"
+                    value={formCondition}
+                    onChange={(e) => setFormCondition(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Consulting Specialist *</label>
+                  <select
+                    value={formDoctor}
+                    onChange={(e) => setFormDoctor(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-semibold cursor-pointer text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    {DOCTORS.map((d) => (
+                      <option key={d.id} value={d.name}>{d.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Rating Evaluation</label>
+                  <div className="flex gap-1.5 text-amber-500 pt-1.5">
+                    {[1, 2, 3, 4, 5].map((stars) => (
+                      <button
+                        type="button"
+                        key={stars}
+                        onClick={() => setFormRating(stars)}
+                        className="p-1 hover:scale-110 transition-transform cursor-pointer"
+                      >
+                        <Star size={18} className={stars <= formRating ? 'fill-current' : ''} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Consultation Ticket Code (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. SJH-2026-8100"
+                    value={formReceipt}
+                    onChange={(e) => setFormReceipt(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono uppercase text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Patient Feedback Review Text *</label>
+                <textarea
+                  required
+                  rows={3}
+                  placeholder="Describe your recovery milestones and experiences under the clinical board..."
+                  value={formText}
+                  onChange={(e) => setFormText(e.target.value)}
+                  className="w-full bg-slate-50 dark:bg-slate-950 px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-900 dark:text-white"
+                />
+              </div>
+
+              {formSuccessMessage && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-4 py-2.5 rounded-xl text-xs font-bold text-center">
+                  ✓ {formSuccessMessage}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(false)}
+                  className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 text-xs font-bold text-white bg-[#00a884] hover:bg-[#008f72] rounded-xl transition-all cursor-pointer shadow-md"
+                >
+                  Verify & Submit Review
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* D. CLINICAL RECEIPT VERIFICATION CHECKER MODAL */}
+      {showReceiptModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in text-left">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+            <h3 className="font-sans font-extrabold text-lg text-slate-950 dark:text-white mb-1.5">
+              Consultation Ticket Registry Verification
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+              Verify the authenticity of any patient review by entering the corresponding Consultation Case / Ticket Code.
+            </p>
+
+            <form onSubmit={handleVerifyReceipt} className="space-y-4">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Enter ticket e.g. SJH-2026-8100"
+                  value={receiptInput}
+                  onChange={(e) => setReceiptInput(e.target.value)}
+                  className="flex-1 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-mono uppercase focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer"
+                >
+                  Verify
+                </button>
+              </div>
+
+              {receiptError && (
+                <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2.5 rounded-xl text-xs font-bold text-center">
+                  ⚠️ {receiptError}
+                </div>
+              )}
+
+              {receiptResult && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-xs space-y-2 text-slate-700 dark:text-slate-300 animate-fade-in">
+                  <div className="flex justify-between border-b border-emerald-500/10 pb-1.5">
+                    <span className="font-bold text-emerald-600 dark:text-teal-400 uppercase font-mono">CODE: {receiptResult.code}</span>
+                    <span className="text-[10px] text-slate-400 font-mono font-semibold">DATE: {receiptResult.date}</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p><strong>Patient Name:</strong> {receiptResult.patientName}</p>
+                    <p><strong>Consulting Specialist:</strong> {receiptResult.doctorName}</p>
+                    <p><strong>Path Treated:</strong> {receiptResult.treatment}</p>
+                    <p className="pt-1.5 flex items-center gap-1.5 text-emerald-600 dark:text-teal-400 font-extrabold uppercase text-[10px]">
+                      <CheckCircle2 size={13} />
+                      <span>Registry Status: {receiptResult.status}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowReceiptModal(false)}
+                  className="px-4 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+                >
+                  Close Desk
                 </button>
               </div>
             </form>
