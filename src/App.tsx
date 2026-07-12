@@ -24,7 +24,8 @@ import {
   VolumeX,
   Maximize2,
   Settings,
-  Link2
+  Link2,
+  AlertTriangle
 } from 'lucide-react';
 import { DOCTORS, DEPARTMENTS, SERVICES, TESTIMONIALS } from './data';
 
@@ -45,14 +46,20 @@ export default function App() {
 
   // Tour Video Player States
   const [videoUrl, setVideoUrl] = useState(() => {
-    return localStorage.getItem('sri_jhansi_hospital_video_url') || 'https://assets.mixkit.co/videos/preview/mixkit-doctors-and-nurses-walking-down-a-hospital-corridor-41951-large.mp4';
+    const saved = localStorage.getItem('sri_jhansi_hospital_video_url');
+    if (!saved || saved.includes('mixkit.co')) {
+      return 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
+    }
+    return saved;
   });
   const [videoPlaying, setVideoPlaying] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
   const [videoLoading, setVideoLoading] = useState(true);
+  const [videoError, setVideoError] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [tempUrlInput, setTempUrlInput] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const videoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -64,9 +71,38 @@ export default function App() {
     }
   }, [videoPlaying, videoUrl]);
 
-  // Handle source changes - auto reset loading state
+  // Handle source changes - auto reset loading/error state & establish liveness timeout
   useEffect(() => {
     setVideoLoading(true);
+    setVideoError(false);
+
+    if (videoTimeoutRef.current) {
+      clearTimeout(videoTimeoutRef.current);
+      videoTimeoutRef.current = null;
+    }
+
+    if (videoUrl && !isYouTubeUrl(videoUrl)) {
+      videoTimeoutRef.current = setTimeout(() => {
+        const video = videoRef.current;
+        if (video && (video.readyState < 3)) {
+          console.log('Video loading timed out or stalled, prompting recovery.');
+          setVideoError(true);
+          setVideoLoading(false);
+        }
+      }, 5000);
+    } else if (isYouTubeUrl(videoUrl)) {
+      // YouTube handles its own states, auto-resolve loading on a short delay or iframe load
+      const t = setTimeout(() => {
+        setVideoLoading(false);
+      }, 1500);
+      return () => clearTimeout(t);
+    }
+
+    return () => {
+      if (videoTimeoutRef.current) {
+        clearTimeout(videoTimeoutRef.current);
+      }
+    };
   }, [videoUrl]);
 
   const handleTogglePlay = () => {
@@ -132,6 +168,57 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Contact hotline states
+  const [deskLine1, setDeskLine1] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sri_jhansi_desk_line_1');
+      return saved ? JSON.parse(saved) : { label: 'Desk Line 1', phone: '9440571584' };
+    } catch {
+      return { label: 'Desk Line 1', phone: '9440571584' };
+    }
+  });
+  const [deskLine2, setDeskLine2] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sri_jhansi_desk_line_2');
+      return saved ? JSON.parse(saved) : { label: 'Desk Line 2', phone: '8978639229' };
+    } catch {
+      return { label: 'Desk Line 2', phone: '8978639229' };
+    }
+  });
+  const [liaisonDesk, setLiaisonDesk] = useState(() => {
+    try {
+      const saved = localStorage.getItem('sri_jhansi_liaison_desk');
+      return saved ? JSON.parse(saved) : { label: 'Liaison Desk', phone: '8309033922' };
+    } catch {
+      return { label: 'Liaison Desk', phone: '8309033922' };
+    }
+  });
+
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [tempDesk1Label, setTempDesk1Label] = useState('');
+  const [tempDesk1Phone, setTempDesk1Phone] = useState('');
+  const [tempDesk2Label, setTempDesk2Label] = useState('');
+  const [tempDesk2Phone, setTempDesk2Phone] = useState('');
+  const [tempLiaisonLabel, setTempLiaisonLabel] = useState('');
+  const [tempLiaisonPhone, setTempLiaisonPhone] = useState('');
+
+  const handleSaveContactDetails = (e: React.FormEvent) => {
+    e.preventDefault();
+    const d1 = { label: tempDesk1Label.trim() || 'Desk Line 1', phone: tempDesk1Phone.trim() || '9440571584' };
+    const d2 = { label: tempDesk2Label.trim() || 'Desk Line 2', phone: tempDesk2Phone.trim() || '8978639229' };
+    const ld = { label: tempLiaisonLabel.trim() || 'Liaison Desk', phone: tempLiaisonPhone.trim() || '8309033922' };
+
+    setDeskLine1(d1);
+    setDeskLine2(d2);
+    setLiaisonDesk(ld);
+
+    localStorage.setItem('sri_jhansi_desk_line_1', JSON.stringify(d1));
+    localStorage.setItem('sri_jhansi_desk_line_2', JSON.stringify(d2));
+    localStorage.setItem('sri_jhansi_liaison_desk', JSON.stringify(ld));
+
+    setShowContactModal(false);
+  };
+
   const handleNextReview = () => {
     setActiveReviewIdx((prev) => (prev + 1) % TESTIMONIALS.length);
   };
@@ -171,8 +258,8 @@ export default function App() {
           <span className="hidden md:inline text-slate-200">Sri Jhansi Ortho & Neuro Rehabilitation Center</span>
         </div>
         <div className="flex items-center gap-4 mt-1 sm:mt-0">
-          <a href="tel:9440571584" className="hover:underline flex items-center gap-1 text-teal-300">
-            <Phone size={11} /> Dial Hotline: 9440571584
+          <a href={`tel:${deskLine1.phone}`} className="hover:underline flex items-center gap-1 text-teal-300">
+            <Phone size={11} /> Dial Hotline: {deskLine1.phone}
           </a>
         </div>
       </div>
@@ -291,7 +378,47 @@ export default function App() {
                   
                   {/* Video Screen */}
                   <div className="rounded-2xl overflow-hidden aspect-video sm:aspect-square max-h-[360px] bg-slate-950 relative group/video shadow-inner flex items-center justify-center min-h-[300px]">
-                    {isYouTubeUrl(videoUrl) ? (
+                    {videoError ? (
+                      <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center gap-4 z-20">
+                        <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 animate-bounce">
+                          <AlertTriangle size={24} />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-bold text-white">Stream Loading Blocked</h4>
+                          <p className="text-[10px] text-slate-400 max-w-xs leading-relaxed">
+                            The direct MP4 stream was blocked by browser sandbox or expired. Select an ultra-reliable YouTube preset or Google CDN video below.
+                          </p>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs pt-1">
+                          <button
+                            onClick={() => {
+                              const newUrl = 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
+                              setVideoUrl(newUrl);
+                              localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
+                              setVideoError(false);
+                              setVideoPlaying(true);
+                            }}
+                            className="flex-1 py-2 px-3 bg-[#0A4D8C] hover:bg-blue-800 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1"
+                          >
+                            <Play size={10} className="fill-white" />
+                            YouTube Tour
+                          </button>
+                          <button
+                            onClick={() => {
+                              const newUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+                              setVideoUrl(newUrl);
+                              localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
+                              setVideoError(false);
+                              setVideoPlaying(true);
+                            }}
+                            className="flex-1 py-2 px-3 bg-teal-600 hover:bg-teal-550 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1"
+                          >
+                            <HeartPulse size={10} />
+                            Google CDN
+                          </button>
+                        </div>
+                      </div>
+                    ) : isYouTubeUrl(videoUrl) ? (
                       <iframe
                         src={getYouTubeEmbed(videoUrl)}
                         title="Sri Jhansi Hospital Youtube Video player"
@@ -317,13 +444,14 @@ export default function App() {
                         onLoadedData={() => setVideoLoading(false)}
                         onError={() => {
                           console.log('Video stream error, skipping loader');
+                          setVideoError(true);
                           setVideoLoading(false);
                         }}
                       />
                     )}
 
                     {/* Loader Overlay */}
-                    {videoLoading && (
+                    {videoLoading && !videoError && (
                       <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md z-30 flex flex-col items-center justify-center gap-3">
                         <div className="relative flex items-center justify-center">
                           <div className="w-12 h-12 border-4 border-teal-500/30 border-t-teal-500 rounded-full animate-spin"></div>
@@ -687,13 +815,6 @@ export default function App() {
           
           {/* Header section of Section */}
           <div className="mb-16 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20 rounded-full mb-4">
-              <Compass className="text-teal-600 dark:text-teal-400 animate-spin-slow" size={13} />
-              <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest font-mono">
-                Piler Town Center Hub
-              </span>
-            </div>
-            
             <h2 className="text-3xl sm:text-4xl font-extrabold font-sans text-slate-900 dark:text-white tracking-tight leading-tight">
               Location & <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-[#0A4D8C] dark:from-teal-400 dark:to-blue-400">Emergency Access</span>
             </h2>
@@ -721,9 +842,6 @@ export default function App() {
                         Tirupati Road, Piler Town, Annamayya District, <br />
                         Andhra Pradesh - 517214, India.
                       </p>
-                      <p className="text-[10px] text-teal-600 dark:text-teal-450 font-bold uppercase tracking-wider mt-3 font-mono flex items-center gap-1">
-                        <span>●</span> Landmark: Near Tirupati Road Junction
-                      </p>
                     </div>
                   </div>
                 </div>
@@ -735,48 +853,65 @@ export default function App() {
                       <Phone size={18} />
                     </div>
                     <div className="flex-1">
-                      <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-sans">Emergency & Liaison Hotlines</h4>
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider font-sans">Emergency & Liaison Hotlines</h4>
+                        <button 
+                          onClick={() => {
+                            setTempDesk1Label(deskLine1.label);
+                            setTempDesk1Phone(deskLine1.phone);
+                            setTempDesk2Label(deskLine2.label);
+                            setTempDesk2Phone(deskLine2.phone);
+                            setTempLiaisonLabel(liaisonDesk.label);
+                            setTempLiaisonPhone(liaisonDesk.phone);
+                            setShowContactModal(true);
+                          }}
+                          className="text-slate-400 hover:text-teal-500 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                          title="Edit Hotlines"
+                        >
+                          <Settings size={14} />
+                        </button>
+                      </div>
                       <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mt-1.5">
                         Click below to initiate dial response:
                       </p>
                       
                       <div className="mt-3 flex flex-col gap-2">
                         <a 
-                          href="tel:9440571584" 
+                          href={`tel:${deskLine1.phone}`} 
                           className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 hover:bg-teal-50 dark:hover:bg-teal-950/30 border border-slate-200 dark:border-slate-900 hover:border-teal-200 dark:hover:border-teal-900 text-slate-705 dark:text-slate-300 hover:text-teal-700 dark:hover:text-teal-300 transition-all font-mono text-[11px] font-bold group/btn focus:outline-none"
                         >
                           <span className="flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-teal-550 dark:bg-teal-400 animate-pulse"></span>
-                            Desk Line 1
+                            {deskLine1.label}
                           </span>
                           <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-teal-600 dark:text-teal-400 font-extrabold group-hover/btn:bg-[#0A4D8C] group-hover/btn:text-white transition-all">
-                            9440571584
+                            {deskLine1.phone}
                           </span>
                         </a>
 
                         <a 
-                          href="tel:8978639229" 
+                          href={`tel:${deskLine2.phone}`} 
                           className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 hover:bg-teal-50 dark:hover:bg-teal-950/30 border border-slate-200 dark:border-slate-900 hover:border-teal-200 dark:hover:border-teal-900 text-slate-705 dark:text-slate-300 hover:text-teal-700 dark:hover:text-teal-300 transition-all font-mono text-[11px] font-bold group/btn focus:outline-none"
                         >
                           <span className="flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-teal-550 dark:bg-teal-400"></span>
-                            Desk Line 2
+                            {deskLine2.label}
                           </span>
                           <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-teal-600 dark:text-teal-400 font-extrabold group-hover/btn:bg-[#0A4D8C] group-hover/btn:text-white transition-all">
-                            8978639229
+                            {deskLine2.phone}
                           </span>
                         </a>
 
                         <a 
-                          href="tel:8309033922" 
+                          href={`tel:${liaisonDesk.phone}`} 
                           className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 hover:bg-teal-50 dark:hover:bg-teal-950/30 border border-slate-200 dark:border-slate-900 hover:border-teal-200 dark:hover:border-teal-900 text-slate-705 dark:text-slate-300 hover:text-teal-700 dark:hover:text-teal-300 transition-all font-mono text-[11px] font-bold group/btn focus:outline-none"
                         >
                           <span className="flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-teal-555 dark:bg-teal-400"></span>
-                            Liaison Desk
+                            {liaisonDesk.label}
                           </span>
                           <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800 text-teal-600 dark:text-teal-400 font-extrabold group-hover/btn:bg-[#0A4D8C] group-hover/btn:text-white transition-all">
-                            8309033922
+                            {liaisonDesk.phone}
                           </span>
                         </a>
                       </div>
@@ -906,14 +1041,14 @@ export default function App() {
 
                   <button
                     type="button"
-                    onClick={() => setTempUrlInput('https://assets.mixkit.co/videos/preview/mixkit-doctors-and-nurses-walking-down-a-hospital-corridor-41951-large.mp4')}
+                    onClick={() => setTempUrlInput('https://www.youtube.com/watch?v=y3YFpXv7o6s')}
                     className="w-full text-left px-3 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-teal-50 dark:hover:bg-teal-950/20 border border-slate-200 dark:border-slate-800 rounded-xl text-[11px] text-slate-700 dark:text-slate-200 transition-all flex items-center justify-between group"
                   >
                     <span className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-                      Default Hospital corridor
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                      YouTube Facility Tour (Highly Reliable)
                     </span>
-                    <span className="text-[9px] text-slate-400 font-mono">Standard CDN</span>
+                    <span className="text-[9px] text-red-600 dark:text-red-400 font-bold font-mono">Recommended</span>
                   </button>
                 </div>
               </div>
@@ -935,6 +1070,119 @@ export default function App() {
                   className="px-4 py-2 text-xs font-bold text-white bg-[#0A4D8C] hover:bg-blue-800 dark:bg-teal-600 dark:hover:bg-teal-550 rounded-xl transition-all cursor-pointer"
                 >
                   Apply & Stream
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* UPDATE EMERGENCY CONTACT HOTLINES MODAL FORM */}
+      {showContactModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in animate-duration-200">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl relative">
+            <h3 className="font-sans font-extrabold text-lg text-slate-950 dark:text-white mb-2">
+              Update Emergency & Liaison Hotlines
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+              Customize the labels and phone numbers of the clinical helpdesks. Changes will immediately synchronize across the entire application interface.
+            </p>
+
+            <form onSubmit={handleSaveContactDetails} className="space-y-4">
+              {/* Desk Line 1 */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest font-mono">
+                  Line 1 (Primary Emergency)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Label Name</label>
+                    <input
+                      type="text"
+                      value={tempDesk1Label}
+                      onChange={(e) => setTempDesk1Label(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
+                    <input
+                      type="text"
+                      value={tempDesk1Phone}
+                      onChange={(e) => setTempDesk1Phone(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Desk Line 2 */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest font-mono">
+                  Line 2 (OPD Helpdesk)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Label Name</label>
+                    <input
+                      type="text"
+                      value={tempDesk2Label}
+                      onChange={(e) => setTempDesk2Label(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
+                    <input
+                      type="text"
+                      value={tempDesk2Phone}
+                      onChange={(e) => setTempDesk2Phone(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Liaison Desk */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest font-mono">
+                  Line 3 (Liaison & Admin)
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Label Name</label>
+                    <input
+                      type="text"
+                      value={tempLiaisonLabel}
+                      onChange={(e) => setTempLiaisonLabel(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">Phone Number</label>
+                    <input
+                      type="text"
+                      value={tempLiaisonPhone}
+                      onChange={(e) => setTempLiaisonPhone(e.target.value)}
+                      className="w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 font-sans">
+                <button
+                  type="button"
+                  onClick={() => setShowContactModal(false)}
+                  className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 dark:bg-transparent dark:hover:bg-slate-800 rounded-xl transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#0A4D8C] hover:bg-blue-800 dark:bg-teal-600 dark:hover:bg-teal-550 rounded-xl transition-all cursor-pointer shadow-md"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>
