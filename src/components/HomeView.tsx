@@ -83,7 +83,7 @@ export default function HomeView({
               {/* Quick Action Buttons */}
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto">
                 <a 
-                  href="https://wa.me/919440571584?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20have%20an%20urgent%20question."
+                  href={`https://wa.me/919440571584?text=${encodeURIComponent('Hi Sri Jhansi Hospital Piler, I have an urgent question.')}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto px-6 py-3.5 bg-[#00a884] hover:bg-[#008f72] text-white font-extrabold text-xs uppercase tracking-wider rounded-xl text-center transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg active:scale-98 flex-1 whitespace-nowrap"

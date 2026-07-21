@@ -160,7 +160,7 @@ export default function ServicesView({
               
               <div className="flex flex-wrap items-center gap-3">
                 <a 
-                  href={`https://wa.me/919440571584?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20would%20like%20to%20consult%20with%20the%20${encodeURIComponent(activeDepartmentDetails.name)}%20desk.`}
+                  href={`https://wa.me/919440571584?text=${encodeURIComponent(`Hi Sri Jhansi Hospital Piler, I would like to consult with the ${activeDepartmentDetails.name} desk.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-[#00a884] hover:bg-[#008f72] text-white px-4 py-2.5 rounded-xl text-[11px] font-extrabold uppercase tracking-wide transition-all shadow-md flex items-center gap-1.5"
@@ -204,7 +204,7 @@ export default function ServicesView({
 
               <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-850 flex items-center justify-end w-full">
                 <a 
-                  href={`https://wa.me/919440571584?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20would%20like%20to%20inquire%20about%20the%20${encodeURIComponent(serv.name)}%20facility.`}
+                  href={`https://wa.me/919440571584?text=${encodeURIComponent(`Hi Sri Jhansi Hospital Piler, I would like to inquire about the ${serv.name} facility.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-[#00a884] hover:bg-[#008f72] text-white px-4 py-2.5 rounded-xl text-[11px] font-extrabold uppercase tracking-wide transition-all shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap w-full sm:w-auto cursor-pointer font-sans"

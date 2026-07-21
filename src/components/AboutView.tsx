@@ -103,7 +103,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
 
             <div className="pt-4 flex justify-start">
               <a 
-                href={`https://wa.me/919440571584?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20would%20like%2520to%2520consult%2520with%2520${encodeURIComponent(directorDoc.name)}.`}
+                href={`https://wa.me/919440571584?text=${encodeURIComponent(`Hi Sri Jhansi Hospital Piler, I would like to consult with ${directorDoc.name}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#00a884] hover:bg-[#008f72] text-white px-5 py-2.5 rounded-xl text-[11px] font-extrabold uppercase tracking-widest transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-98"
@@ -236,7 +236,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
                   Visit: {doc.schedule || 'Monday - Saturday'}
                 </span>
                 <a 
-                  href={`https://wa.me/919440571584?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20would%20like%20to%20consult%2520with%2520${encodeURIComponent(doc.name)}.`}
+                  href={`https://wa.me/919440571584?text=${encodeURIComponent(`Hi Sri Jhansi Hospital Piler, I would like to consult with ${doc.name}.`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-[#00a884] hover:bg-[#008f72] text-white px-4 py-2.5 rounded-xl text-[10px] font-extrabold uppercase tracking-widest transition-all shadow-md text-center flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
