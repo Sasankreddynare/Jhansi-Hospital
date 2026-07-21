@@ -649,12 +649,12 @@ export default function App() {
                     Sri Jhansi Hospital
                   </span>
                   <span className="text-[9px] text-teal-400 font-extrabold uppercase tracking-widest block mt-1.5 leading-none">
-                    Ortho & Stroke Rehab Centre
+                    Multi-Speciality Rehab
                   </span>
                 </div>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed font-medium">
-                A premier clinical healthcare institution in Piler town, specializing in advanced orthopaedic treatments, post-stroke recovery, and comprehensive physical rehabilitation.
+                A premier multi-speciality hospital in Piler, specializing in advanced orthopaedic treatments, post-stroke recovery, and comprehensive physical rehabilitation.
               </p>
             </div>
 
@@ -738,9 +738,6 @@ export default function App() {
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-xs text-center font-medium">
             <div>
               &copy; {new Date().getFullYear()} Sri Jhansi Hospital & Rehabilitation Center. All rights reserved.
-            </div>
-            <div className="text-[11px] font-mono text-slate-600 bg-slate-950 px-3 py-1 rounded-md border border-slate-900/60">
-              Reg: Annamayya Clinical Board Registry
             </div>
           </div>
 
