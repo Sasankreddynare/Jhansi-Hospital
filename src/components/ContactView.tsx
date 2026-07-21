@@ -3,7 +3,6 @@ import {
   Phone, 
   MapPin, 
   Clock, 
-  Settings, 
   Mail, 
   Compass, 
   ChevronRight,
@@ -47,22 +46,13 @@ export default function ContactView({
 
       {/* CORE CONTACT CARDS & ACTIONS */}
       <section className="max-w-4xl mx-auto space-y-6">
-        <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-850">
-          <div>
-            <h3 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Choose Your Preferred Connection Mode
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Avoid navigating complex forms or waiting for generic emails. Select any of the instant clinical channels below to chat or speak directly with our team.
-            </p>
-          </div>
-          <button 
-            onClick={onUpdateContactClick}
-            className="p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-350 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors shrink-0"
-            title="Configure Helpline Numbers"
-          >
-            <Settings size={15} />
-          </button>
+        <div className="pb-2 border-b border-slate-100 dark:border-slate-850 text-left">
+          <h3 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            Choose Your Preferred Connection Mode
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+            Avoid navigating complex forms or waiting for generic emails. Select any of the instant clinical channels below to chat or speak directly with our team.
+          </p>
         </div>
 
         {/* 1. WhatsApp Card */}
