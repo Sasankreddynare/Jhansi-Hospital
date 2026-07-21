@@ -665,12 +665,12 @@ export default function App() {
               </h4>
               <ul className="space-y-2.5 text-xs font-semibold">
                 {[
-                  { id: 'home', label: 'Home Dashboard' },
-                  { id: 'about', label: 'About Our Clinic' },
-                  { id: 'services', label: 'Clinical Services' },
-                  { id: 'gallery', label: 'Photo & Video Gallery' },
-                  { id: 'testimonials', label: 'Patient Testimonials' },
-                  { id: 'contact', label: 'Contact & Location' }
+                  { id: 'home', label: 'Home' },
+                  { id: 'about', label: 'About Us' },
+                  { id: 'services', label: 'Services' },
+                  { id: 'gallery', label: 'Gallery' },
+                  { id: 'testimonials', label: 'Testimonials' },
+                  { id: 'contact', label: 'Contact' }
                 ].map((item) => (
                   <li key={item.id}>
                     <button 
