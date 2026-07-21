@@ -196,33 +196,20 @@ export default function GalleryView() {
               onClick={() => setActivePhoto(idx)}
               className="group bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/85 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-750 transition-all duration-350 cursor-pointer flex flex-col text-left"
             >
-              {/* Image box with overlay */}
+              {/* Image box with hover zoom */}
               <div className="relative aspect-video overflow-hidden bg-slate-100 dark:bg-slate-950">
                 <img 
                   src={photo.src}
                   alt={photo.title}
                   referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-350 flex items-end p-4">
-                  <span className="text-[10px] font-mono font-bold uppercase text-white bg-slate-950/80 px-2.5 py-1 rounded-md tracking-wider flex items-center gap-1.5 backdrop-blur-xs">
-                    <Eye size={12} />
-                    View Details
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-350 flex items-center justify-center">
+                  <span className="text-[11px] font-sans font-bold uppercase text-white bg-slate-950/80 px-3.5 py-2 rounded-full tracking-wider flex items-center gap-1.5 backdrop-blur-xs">
+                    <Eye size={13} />
+                    View Photo
                   </span>
                 </div>
-                <span className="absolute top-3 left-3 bg-teal-600 text-white text-[9px] font-mono font-black tracking-wider uppercase px-2 py-1 rounded-md shadow-xs">
-                  {photo.category}
-                </span>
-              </div>
-
-              {/* Text Area */}
-              <div className="p-5 flex-grow flex flex-col justify-between space-y-1.5">
-                <h4 className="font-sans font-bold text-slate-900 dark:text-white text-[13px] md:text-sm uppercase tracking-tight group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                  {photo.title}
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
-                  {photo.desc}
-                </p>
               </div>
             </div>
           ))}
@@ -275,14 +262,11 @@ export default function GalleryView() {
             </div>
 
             {/* Details overlay bar */}
-            <div className="p-6 bg-slate-950/95 border-t border-slate-900 text-left space-y-2">
-              <span className="inline-flex items-center gap-1 text-[9px] font-mono font-black text-teal-400 uppercase tracking-widest bg-teal-950/50 px-2 py-1 rounded-md">
-                {GALLERY_PHOTOS[activePhoto].category}
-              </span>
-              <h4 className="text-base font-sans font-black text-white uppercase tracking-tight">
+            <div className="p-5 bg-slate-950 border-t border-slate-900 text-left space-y-1">
+              <h4 className="text-sm md:text-base font-sans font-bold text-white uppercase tracking-tight">
                 {GALLERY_PHOTOS[activePhoto].title}
               </h4>
-              <p className="text-xs text-slate-400 leading-relaxed font-medium">
+              <p className="text-xs text-slate-400 leading-relaxed">
                 {GALLERY_PHOTOS[activePhoto].desc}
               </p>
             </div>

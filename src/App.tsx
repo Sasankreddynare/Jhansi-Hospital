@@ -412,7 +412,7 @@ export default function App() {
 
 
       {/* 3. PREMIUM MULTI-PAGE GLASSMORPHIC HEADER */}
-      <header className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 py-4 flex justify-between items-center z-40 transition-all duration-300 shadow-xs">
+      <header className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80 px-4 md:px-8 py-4.5 flex justify-between items-center z-40 transition-all duration-300 shadow-xs">
         
         {/* Hospital Branding */}
         <div 
@@ -423,20 +423,17 @@ export default function App() {
             <HeartPulse size={20} />
           </div>
           <div className="flex flex-col text-left">
-            <span className="font-sans font-black text-slate-900 dark:text-white text-sm md:text-base tracking-tight leading-none uppercase">
-              Sri Jhansi
+            <span className="font-sans font-black text-slate-900 dark:text-white text-base md:text-[19px] tracking-tight leading-none uppercase whitespace-nowrap">
+              Sri Jhansi Hospital
             </span>
-            <span className="font-sans font-black text-slate-900 dark:text-white text-sm md:text-base tracking-tight leading-none uppercase mt-0.5">
-              Hospital
-            </span>
-            <span className="text-[8px] md:text-[9.5px] text-teal-600 dark:text-teal-400 font-extrabold uppercase tracking-widest leading-none mt-1">
+            <span className="text-[8px] md:text-[9.5px] text-teal-600 dark:text-teal-400 font-extrabold uppercase tracking-widest leading-none mt-1.5">
               Multi-Speciality Rehab
             </span>
           </div>
         </div>
 
         {/* Dynamic Multi-Page Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <nav className="hidden lg:flex items-center gap-7 xl:gap-9 text-[13.5px] md:text-[14.5px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           {[
             { id: 'home', label: 'Home' },
             { id: 'about', label: 'About Us' },
@@ -524,7 +521,7 @@ export default function App() {
                 <button
                   key={item.id}
                   onClick={() => handlePageChange(item.id)}
-                  className={`w-full px-4 py-3 text-left rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                  className={`w-full px-4 py-3.5 text-left rounded-xl text-[13.5px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                     isActive 
                       ? 'bg-slate-950 dark:bg-slate-800 text-white' 
                       : 'bg-slate-50 dark:bg-slate-950 text-slate-500 hover:text-slate-950 dark:hover:text-white'
