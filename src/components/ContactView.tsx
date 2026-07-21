@@ -177,9 +177,9 @@ export default function ContactView({
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-sans">Physical Address</p>
                 <p className="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
-                  Sri Jhansi Hospital (Ortho & Neuro Rehab),<br />
-                  Tirupati Bypass Road, Piler Town,<br />
-                  Annamayya District, Andhra Pradesh, PIN - 517214
+                  2-279, Sri Jhansi Hospital Complex,<br />
+                  Tirupati Road, Pileru,<br />
+                  Andhra Pradesh - 517214
                 </p>
               </div>
             </div>

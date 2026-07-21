@@ -694,7 +694,7 @@ export default function App() {
               <div className="space-y-3.5 text-xs font-medium text-slate-350">
                 <div className="flex gap-3 items-start">
                   <MapPin size={15} className="text-blue-500 shrink-0 mt-0.5" />
-                  <span className="leading-relaxed">Beside Tirupati Bypass Road,<br />Pileru, AP - 517214</span>
+                  <span className="leading-relaxed">2-279, Sri Jhansi Hospital Complex,<br />Tirupati Road, Pileru - 517214</span>
                 </div>
                 <div className="flex gap-3 items-start font-mono">
                   <Phone size={15} className="text-blue-500 shrink-0 mt-0.5" />
