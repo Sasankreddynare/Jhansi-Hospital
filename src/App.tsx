@@ -129,13 +129,19 @@ export default function App() {
   }, []);
 
   const [videoPlaying, setVideoPlaying] = useState(true);
-  const [videoMuted, setVideoMuted] = useState(true);
+  const [videoMuted, setVideoMuted] = useState(false);
   const [videoLoading, setVideoLoading] = useState(true);
   const [videoError, setVideoError] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [tempUrlInput, setTempUrlInput] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.muted = videoMuted;
+    }
+  }, [videoMuted]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -650,17 +656,6 @@ export default function App() {
               <p className="text-xs text-slate-400 leading-relaxed font-medium">
                 A premier clinical healthcare institution in Piler town, specializing in advanced orthopaedic treatments, post-stroke recovery, and comprehensive physical rehabilitation.
               </p>
-              <div className="pt-2">
-                <a 
-                  href="https://instagram.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 rounded-xl hover:bg-slate-900 hover:text-white transition-all text-[11px] font-bold uppercase tracking-wider text-slate-350 bg-slate-950/40"
-                >
-                  <Instagram size={13} className="text-pink-500" />
-                  <span>Instagram</span>
-                </a>
-              </div>
             </div>
 
             {/* Column 2: Quick Scroll Navigation */}

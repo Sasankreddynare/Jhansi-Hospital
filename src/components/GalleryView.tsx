@@ -219,57 +219,48 @@ export default function GalleryView() {
       {/* LIGHTBOX MODAL */}
       {activePhoto !== null && (
         <div 
-          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/98 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setActivePhoto(null)}
         >
-          {/* Main frame */}
+          {/* Close trigger */}
+          <button 
+            onClick={() => setActivePhoto(null)}
+            className="absolute top-6 right-6 z-55 p-3 rounded-full bg-black/60 hover:bg-black text-white border border-slate-800 transition-colors cursor-pointer"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Navigation Left */}
+          <button 
+            onClick={(e) => {
+              handlePrevPhoto(e);
+            }}
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-55 p-3.5 rounded-full bg-black/60 hover:bg-black text-white border border-slate-800 transition-colors cursor-pointer"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          {/* Navigation Right */}
+          <button 
+            onClick={(e) => {
+              handleNextPhoto(e);
+            }}
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-55 p-3.5 rounded-full bg-black/60 hover:bg-black text-white border border-slate-800 transition-colors cursor-pointer"
+          >
+            <ChevronRight size={24} />
+          </button>
+
+          {/* Full Photo view area */}
           <div 
-            className="relative max-w-4xl w-full bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl animate-scale-up"
+            className="w-full h-full flex items-center justify-center p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close trigger */}
-            <button 
-              onClick={() => setActivePhoto(null)}
-              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white border border-slate-800 transition-colors cursor-pointer"
-            >
-              <X size={18} />
-            </button>
-
-            {/* Navigation Left */}
-            <button 
-              onClick={handlePrevPhoto}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white border border-slate-800 transition-colors cursor-pointer"
-            >
-              <ChevronLeft size={20} />
-            </button>
-
-            {/* Navigation Right */}
-            <button 
-              onClick={handleNextPhoto}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white border border-slate-800 transition-colors cursor-pointer"
-            >
-              <ChevronRight size={20} />
-            </button>
-
-            {/* Large Image container */}
-            <div className="aspect-video w-full bg-slate-950 flex items-center justify-center">
-              <img 
-                src={GALLERY_PHOTOS[activePhoto].src}
-                alt={GALLERY_PHOTOS[activePhoto].title}
-                referrerPolicy="no-referrer"
-                className="max-h-full max-w-full object-contain"
-              />
-            </div>
-
-            {/* Details overlay bar */}
-            <div className="p-5 bg-slate-950 border-t border-slate-900 text-left space-y-1">
-              <h4 className="text-sm md:text-base font-sans font-bold text-white uppercase tracking-tight">
-                {GALLERY_PHOTOS[activePhoto].title}
-              </h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {GALLERY_PHOTOS[activePhoto].desc}
-              </p>
-            </div>
+            <img 
+              src={GALLERY_PHOTOS[activePhoto].src}
+              alt={GALLERY_PHOTOS[activePhoto].title}
+              referrerPolicy="no-referrer"
+              className="max-h-[92vh] max-w-[95vw] object-contain rounded-lg shadow-2xl animate-scale-up select-none"
+            />
           </div>
         </div>
       )}

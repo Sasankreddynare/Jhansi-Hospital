@@ -194,8 +194,9 @@ export default function HomeView({
                       muted={videoMuted}
                       playsInline
                       autoPlay
+                      controls
                       preload="auto"
-                      onLoadStart={() => setVideoLoading(true)}
+                      onLoadStart={() => setVideoLoading(false)}
                       onWaiting={() => setVideoLoading(true)}
                       onPlaying={() => setVideoLoading(false)}
                       onCanPlay={() => setVideoLoading(false)}
@@ -215,41 +216,6 @@ export default function HomeView({
                         <HeartPulse size={20} className="text-teal-400 absolute animate-pulse" />
                       </div>
                       <p className="text-xs font-semibold text-white tracking-wide">Connecting Stream...</p>
-                    </div>
-                  )}
-
-                  {/* Dark gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45 pointer-events-none z-10"></div>
-
-                  {/* Overlay header */}
-                  <div className="absolute top-3 left-3 right-3 z-20 flex justify-between items-center pointer-events-none">
-                    <div className="px-2.5 py-1 bg-teal-500/85 backdrop-blur-md text-white text-[9px] font-sans font-bold tracking-widest uppercase rounded-lg flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                      Hospital Tour Video
-                    </div>
-                  </div>
-
-                  {/* Micro controls for direct HTML5 MP4 */}
-                  {!isYouTubeUrl(videoUrl) && (
-                    <div className="absolute bottom-3 left-3 right-3 z-20 flex justify-between items-center pointer-events-auto">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={handleTogglePlay}
-                          className="w-7 h-7 bg-white/90 hover:bg-white text-slate-900 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer"
-                        >
-                          {videoPlaying ? <Pause size={10} className="fill-slate-900" /> : <Play size={10} className="fill-slate-900 ml-0.5" />}
-                        </button>
-                        <button
-                          onClick={handleToggleMute}
-                          className="w-7 h-7 bg-black/65 hover:bg-black/80 text-white rounded-full flex items-center justify-center border border-white/10 transition-all cursor-pointer"
-                        >
-                          {videoMuted ? <VolumeX size={10} /> : <Volume2 size={10} />}
-                        </button>
-                      </div>
-
-                      <span className="text-[9px] font-mono font-bold text-white/80 bg-black/40 px-2 py-0.5 rounded-md">
-                        {videoPlaying ? 'Looping' : 'Paused'}
-                      </span>
                     </div>
                   )}
                 </div>
