@@ -78,7 +78,7 @@ export default function ContactView({
                 WhatsApp Support
               </h4>
               <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium max-w-2xl">
-                Message us for general clinic inquiries and digital prescriptions.
+                Message us directly on WhatsApp for any assistance, doctor consultations, or general medical queries.
               </p>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function ContactView({
               <span>Direct Driving Navigation</span>
             </div>
             <a 
-              href="https://maps.app.goo.gl/ki2GjWzS4zU8zszP7?g_st=ic"
+              href="https://www.google.com/maps/place/Jhaansi+Hospital/@13.6537354,78.9503569,17z/data=!3m1!4b1!4m6!3m5!1s0x3bb294b816ae14e7:0x599d14db0ba141be!8m2!3d13.6537354!4d78.9503569!16s%2Fg%2F11c37_rsvb!18m1!1e1?entry=ttu"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3.5 bg-[#0A4D8C] hover:bg-blue-800 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md text-center flex items-center justify-center gap-1 cursor-pointer"
@@ -206,9 +206,9 @@ export default function ContactView({
         {/* Right Column: Google Map Embed Frame */}
         <div className="lg:col-span-7">
           <div className="relative rounded-3xl overflow-hidden aspect-video lg:aspect-square lg:max-h-[500px] bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-2.5 shadow-lg">
-            {/* IFrame map of Tirupati Bypass Road, Piler, Chittoor/Annamayya district */}
+            {/* IFrame map of Jhaansi Hospital, Piler */}
             <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15474.398642232964!2d78.931758!3d13.62145!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bb2909404094095%3A0x7d025b90f450f38b!2sPileru%2C%20Andhra%20Pradesh%20517214!5e0!3m2!1sen!2sin!4v1781790000000!5m2!1sen!2sin" 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3868.5132717906917!2d78.94816821106822!3d13.653735399557007!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bb294b816ae14e7%3A0x599d14db0ba141be!2sJhaansi%2520Hospital!5e0!3m2!1sen!2sin!4v1781790000000!5m2!1sen!2sin" 
               width="100%" 
               height="100%" 
               style={{ border: 0 }} 
@@ -216,7 +216,7 @@ export default function ContactView({
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
               className="rounded-2xl w-full h-full min-h-[300px]"
-              title="Sri Jhansi Hospital Piler Location Map"
+              title="Jhaansi Hospital Piler Location Map"
             ></iframe>
           </div>
         </div>
