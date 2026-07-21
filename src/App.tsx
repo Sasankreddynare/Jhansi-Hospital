@@ -20,7 +20,9 @@ import {
   ChevronRight,
   Settings,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Mail,
+  Instagram
 } from 'lucide-react';
 
 import { DOCTORS, DEPARTMENTS, SERVICES, TESTIMONIALS, REHAB_MILESTONES } from './data';
@@ -630,99 +632,111 @@ export default function App() {
         </div>
       </main>
 
-      {/* 6. COHESIVE, HIGH-CONTRAST PROFESSIONAL FOOTER */}
-      <footer className="bg-slate-900 text-slate-300 dark:bg-[#020b14] border-t border-slate-800 pt-16 pb-8 text-left text-xs">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-10">
+      {/* 6. COHESIVE, HIGH-CONTRAST PREMIUM FOOTER */}
+      <footer className="bg-slate-950 text-slate-400 border-t border-slate-900 pt-16 pb-12 text-left text-xs relative overflow-hidden">
+        {/* Subtle decorative background gradient */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-900/5 rounded-full blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 right-10 w-80 h-80 bg-teal-900/5 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
           
-          {/* Col 1: Brand Info */}
-          <div className="md:col-span-4 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-[#0A4D8C] rounded-lg flex items-center justify-center text-white shrink-0 shadow-md">
-                <HeartPulse size={16} />
-              </div>
-              <span className="font-sans font-black text-white text-sm tracking-widest uppercase">
-                Sri Jhansi Hospital
-              </span>
-            </div>
+          {/* Top Row: Brand & OPD hours */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-slate-900">
             
-            <p className="text-slate-400 text-[11px] leading-relaxed font-medium">
-              A standard, accredited orthopedic hospital & neurological physiotherapy rehabilitation center. Dedicated to delivering verifiable clinical success with 100% transparency.
-            </p>
-
-            <div className="space-y-1 text-[11px] text-slate-500 font-mono">
-              <p>📍 Tirupati Bypass Rd, Pileru, AP 517214</p>
-              <p>📝 Reg: Annamayya Clinical Board Registry</p>
-            </div>
-          </div>
-
-          {/* Col 2: Specialties shortcut */}
-          <div className="md:col-span-3 space-y-3.5 pl-0 md:pl-4">
-            <h4 className="text-white text-[11px] font-bold uppercase tracking-wider font-sans">Specialised Care</h4>
-            <div className="flex flex-col gap-2 font-medium">
-              <button 
-                onClick={() => { setSelectedDeptId('orthopaedics'); setServicesTab('departments'); handlePageChange('services'); }}
-                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
-              >
-                Orthopaedic Surgery & Fractures
-              </button>
-              <button 
-                onClick={() => { setSelectedDeptId('neuro-spine'); setServicesTab('departments'); handlePageChange('services'); }}
-                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
-              >
-                Neurology & Spine Triage
-              </button>
-              <button 
-                onClick={() => { setSelectedDeptId('stroke-rehab'); setServicesTab('departments'); handlePageChange('services'); }}
-                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
-              >
-                Stroke & Paralysis Rehabilitation
-              </button>
-              <button 
-                onClick={() => { setSelectedDeptId('general-medicine'); setServicesTab('departments'); handlePageChange('services'); }}
-                className="hover:text-teal-400 text-left cursor-pointer transition-colors"
-              >
-                General Medicine & Diagnostics
-              </button>
-            </div>
-          </div>
-
-          {/* Col 3: Nav links */}
-          <div className="md:col-span-2 space-y-3.5">
-            <h4 className="text-white text-[11px] font-bold uppercase tracking-wider font-sans">Navigation</h4>
-            <div className="flex flex-col gap-2 font-medium">
-              <button onClick={() => handlePageChange('home')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Home</button>
-              <button onClick={() => handlePageChange('about')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">About Us</button>
-              <button onClick={() => handlePageChange('services')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Clinical Services</button>
-              <button onClick={() => handlePageChange('gallery')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Hospital Gallery</button>
-              <button onClick={() => handlePageChange('testimonials')} className="hover:text-teal-400 text-left cursor-pointer transition-colors">Patient Feedback</button>
-            </div>
-          </div>
-
-          {/* Col 4: Urgent Contact */}
-          <div className="md:col-span-3 space-y-3.5 text-left">
-            <h4 className="text-white text-[11px] font-bold uppercase tracking-wider font-sans">Emergency Desks</h4>
-            <div className="space-y-3 font-medium">
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-[11px] space-y-1.5">
-                <p className="text-[10px] text-red-500 font-bold font-mono">PRIMARY INTAKE (24H)</p>
-                <p className="text-white font-extrabold text-xs">{deskLine1.phone}</p>
-                <a href={`tel:${deskLine1.phone}`} className="inline-block text-[9.5px] text-teal-400 font-bold hover:underline">Click to dial helpline →</a>
+            {/* White Brand Card */}
+            <div className="bg-white px-5 py-4 rounded-2xl flex items-center gap-3.5 shadow-xl border border-slate-200/50 shrink-0 max-w-sm">
+              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md shadow-blue-500/10">
+                <HeartPulse size={18} />
               </div>
-              <div className="text-[11px] text-slate-500 leading-normal">
-                OPD consultation desks remain active from Monday to Saturday, 9:00 AM to 6:00 PM. Closed on Sundays.
+              <div className="text-left">
+                <span className="font-sans font-black text-slate-950 text-sm tracking-wider uppercase block leading-none">
+                  Sri Jhansi Hospital
+                </span>
+                <span className="text-[9px] text-teal-600 font-extrabold uppercase tracking-widest block mt-1 leading-none">
+                  We Care • We Rehabilitate
+                </span>
               </div>
             </div>
+
+            {/* OPD Hours Capsule Pill */}
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl md:rounded-full px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 text-xs text-slate-350 shadow-inner">
+              <div className="flex items-center gap-1.5 text-blue-400 font-bold uppercase tracking-wider text-[10.5px]">
+                <Clock size={13} className="animate-pulse shrink-0" />
+                <span>OPD HOURS:</span>
+              </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="font-medium text-slate-300">Mon - Sat: <strong className="text-white font-semibold">9 AM - 6 PM</strong></span>
+                <span className="text-slate-800 hidden sm:inline">•</span>
+                <span className="font-medium text-slate-400">Sunday: <strong className="text-slate-500 font-medium">Closed</strong></span>
+              </div>
+            </div>
+
           </div>
 
-        </div>
+          {/* Middle Row: Flat Contact Details Bar */}
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 py-8 text-slate-400 font-medium leading-relaxed border-b border-slate-900/60">
+            
+            <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-6 md:gap-8">
+              
+              {/* Address with MapPin */}
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-blue-500 shrink-0 border border-slate-800/50">
+                  <MapPin size={14} />
+                </div>
+                <span className="text-slate-300 font-medium text-[13px]">Beside Tirupati Bypass Rd, Pileru, AP - 517214</span>
+              </div>
 
-        {/* Bottom Bar: copyright & legal disclaimer */}
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-slate-500 text-[10px]">
-          <div>
-            &copy; {new Date().getFullYear()} Sri Jhansi Hospital & Rehabilitation Center. All rights reserved.
+              {/* Vertical divider on desktop */}
+              <div className="hidden lg:block h-5 w-px bg-slate-900"></div>
+
+              {/* Phone Contacts */}
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-blue-500 shrink-0 border border-slate-800/50">
+                  <Phone size={14} />
+                </div>
+                <div className="flex items-center gap-2.5 font-mono text-[13px]">
+                  <a href={`tel:${deskLine1.phone}`} className="text-slate-300 hover:text-blue-400 transition-colors">{deskLine1.phone}</a>
+                  <span className="text-slate-800">|</span>
+                  <a href={`tel:${deskLine2.phone}`} className="text-slate-300 hover:text-blue-400 transition-colors">{deskLine2.phone}</a>
+                </div>
+              </div>
+
+              {/* Vertical divider on desktop */}
+              <div className="hidden lg:block h-5 w-px bg-slate-900"></div>
+
+              {/* Email contact */}
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-blue-500 shrink-0 border border-slate-800/50">
+                  <Mail size={14} />
+                </div>
+                <a href="mailto:healthcare@srijhansihospital.com" className="text-slate-300 hover:text-blue-400 transition-colors text-[13px]">healthcare@srijhansihospital.com</a>
+              </div>
+
+            </div>
+
+            {/* Instagram Social Pill */}
+            <a 
+              href="https://instagram.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 border border-slate-800 rounded-full hover:bg-slate-900 hover:text-white transition-all text-xs font-bold uppercase tracking-wider text-slate-300 bg-slate-950/40 shrink-0"
+            >
+              <Instagram size={14} className="text-pink-500" />
+              <span>Instagram</span>
+            </a>
+
           </div>
-          <div className="max-w-md text-center md:text-right text-[9.5px] leading-relaxed">
-            <strong>Disclaimer:</strong> This application acts as a patient review & outcome repository for Sri Jhansi Ortho & Stroke Rehabilitation Clinic. Managed under Director Dr. M. Dinesh Kumar Reddy (Chief Specialist). All reviews are voluntarily supplied and receipt-checked.
+
+          {/* Bottom Row: Copyright */}
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-xs text-center font-medium">
+            <div>
+              &copy; {new Date().getFullYear()} Sri Jhansi Hospital & Rehabilitation Center. All rights reserved.
+            </div>
+            <div className="text-[11px] font-mono text-slate-600 bg-slate-950 px-3 py-1 rounded-md border border-slate-900/60">
+              Reg: Annamayya Clinical Board Registry
+            </div>
           </div>
+
         </div>
       </footer>
 

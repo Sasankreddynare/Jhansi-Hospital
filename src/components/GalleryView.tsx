@@ -439,65 +439,7 @@ export default function GalleryView() {
 
       </div>
 
-      {/* ADDITIONAL TOUR SUMMARY HIGHLIGHTS */}
-      <div className="max-w-6xl mx-auto pt-4 text-left">
-        <h3 className="text-xs font-mono font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-6 flex items-center gap-2">
-          <Sparkles size={13} className="text-teal-500" />
-          Clinical Highlights Demonstrated on Screen
-        </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-3xl hover:border-teal-550 transition-colors">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3.5">
-              <Heart size={16} className="fill-current" />
-            </div>
-            <h4 className="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white mb-1">
-              Active-Passive Rehab Gym
-            </h4>
-            <p className="text-[10.5px] text-slate-500 dark:text-slate-450 leading-relaxed font-medium">
-              Featured at 0:10. Equipped with specialized active-passive motorized leg & hand cycling machines designed to recover muscular mobility post stroke.
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-3xl hover:border-teal-550 transition-colors">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3.5">
-              <Activity size={16} />
-            </div>
-            <h4 className="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white mb-1">
-              Computerized Scan Center
-            </h4>
-            <p className="text-[10.5px] text-slate-500 dark:text-slate-450 leading-relaxed font-medium">
-              Featured at 2:00. Showcases advanced multi-slice computed tomography (CT scanning) and high-contrast digital radiography for joint diagnostics.
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-3xl hover:border-teal-550 transition-colors">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3.5">
-              <Shield size={16} />
-            </div>
-            <h4 className="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white mb-1">
-              Surgical Operation Theater
-            </h4>
-            <p className="text-[10.5px] text-slate-500 dark:text-slate-450 leading-relaxed font-medium">
-              Featured at 0:19. State-of-the-art modular operating system optimized for joint replacements, fracture alignment surgeries, and neurological triage.
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-5 rounded-3xl hover:border-teal-550 transition-colors">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center mb-3.5">
-              <Phone size={16} />
-            </div>
-            <h4 className="text-xs font-black uppercase tracking-tight text-slate-900 dark:text-white mb-1">
-              Immediate Reception Liaison
-            </h4>
-            <p className="text-[10.5px] text-slate-500 dark:text-slate-450 leading-relaxed font-medium">
-              Featured at 2:12. Outpatient registration and support desks providing real-time scheduling coordination with consulting surgical specialists.
-            </p>
-          </div>
-
-        </div>
-      </div>
 
     </div>
   );

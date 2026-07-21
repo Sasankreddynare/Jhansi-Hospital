@@ -213,9 +213,6 @@ export default function ServicesView({
                   <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-teal-400 flex items-center justify-center border border-blue-100/40 dark:border-blue-950/60 shadow-inner group-hover:scale-105 transition-transform">
                     <Activity size={18} />
                   </div>
-                  <span className="text-[9px] font-extrabold tracking-widest text-teal-600 dark:text-teal-400 bg-teal-500/10 px-2.5 py-1 rounded-md uppercase">
-                    {serv.category}
-                  </span>
                 </div>
 
                 <div>

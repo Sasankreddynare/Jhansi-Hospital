@@ -8,7 +8,7 @@ import {
   Users,
   Briefcase
 } from 'lucide-react';
-import { DOCTORS, REHAB_MILESTONES } from '../data';
+import { DOCTORS } from '../data';
 
 interface AboutViewProps {
   onNavigate: (page: string) => void;
@@ -138,61 +138,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
         </div>
       </section>
 
-      {/* 3. REHABILITATION MILESTONES & CERTIFIED CASE DISCIPLINE */}
-      <section className="space-y-6">
-        <div className="space-y-1.5">
-          <span className="text-[10px] font-mono font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest">Case Registries</span>
-          <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white">Certified Rehabilitation Milestones</h3>
-          <p className="text-xs text-slate-500 leading-normal max-w-2xl">
-            Real patient profiles tracking clinical progress metrics. These metrics show genuine orthopedic and post-stroke recoveries documented at Sri Jhansi.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-          {REHAB_MILESTONES.map((milestone) => (
-            <div 
-              key={milestone.id}
-              className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4"
-            >
-              <div className="space-y-2">
-                <div className="flex justify-between items-start gap-2">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white leading-normal">
-                    {milestone.title}
-                  </h4>
-                  <span className="text-[9px] font-mono font-black text-blue-600 dark:text-teal-400 bg-blue-50 dark:bg-teal-950/40 px-2 py-0.5 rounded-md shrink-0">
-                    {milestone.patientInitials}
-                  </span>
-                </div>
-                
-                <div className="space-y-1 pt-1">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Condition & Path</p>
-                  <p className="text-[11px] text-slate-650 dark:text-slate-350 leading-relaxed font-medium">{milestone.condition}</p>
-                </div>
-
-                <div className="space-y-1.5 pt-1 text-[11px]">
-                  <p className="text-slate-500"><strong className="text-red-500">Pre-Rehab:</strong> {milestone.preTreatment}</p>
-                  <p className="text-slate-700 dark:text-slate-350"><strong className="text-emerald-500 font-bold">Post-Rehab:</strong> {milestone.postTreatment}</p>
-                </div>
-              </div>
-
-              {/* Progress Bar & recovery indicator */}
-              <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                <div className="flex justify-between text-[10px] font-bold font-mono">
-                  <span className="text-slate-450 uppercase">{milestone.duration}</span>
-                  <span className="text-emerald-500 font-extrabold">{milestone.percentageRecovery}% Recovery</span>
-                </div>
-                
-                <div className="w-full bg-slate-100 dark:bg-slate-950 h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-emerald-500 h-full rounded-full"
-                    style={{ width: `${milestone.percentageRecovery}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* 4. OTHER CONSULTANT PHYSICIANS */}
       <section className="space-y-6">

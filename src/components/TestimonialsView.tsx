@@ -3,12 +3,10 @@ import {
   Star, 
   CheckCircle2, 
   ThumbsUp, 
-  PlusCircle, 
   Search, 
   Filter, 
   Award,
-  ShieldCheck,
-  FileText
+  ShieldCheck
 } from 'lucide-react';
 import { DOCTORS } from '../data';
 
@@ -124,22 +122,7 @@ export default function TestimonialsView({
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
-            <button
-              onClick={onAddReviewClick}
-              className="flex-1 py-2.5 px-4 bg-slate-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
-            >
-              <PlusCircle size={14} />
-              <span>Write Review</span>
-            </button>
-            <button
-              onClick={onVerifyReceiptClick}
-              className="flex-1 py-2.5 px-4 bg-white hover:bg-slate-50 text-blue-700 border border-slate-200 dark:border-slate-800 font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <FileText size={14} />
-              <span>Verify Ticket</span>
-            </button>
-          </div>
+
         </div>
 
         {/* Right Column: Bars Grid */}

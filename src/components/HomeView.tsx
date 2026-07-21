@@ -11,7 +11,8 @@ import {
   AlertTriangle, 
   Activity,
   Phone,
-  ArrowUpRight
+  ArrowUpRight,
+  MessageCircle
 } from 'lucide-react';
 
 interface HomeViewProps {
@@ -71,10 +72,6 @@ export default function HomeView({
             {/* Left Content */}
             <div className="lg:col-span-7 space-y-6 text-left">
               
-              <div className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-[#061424] text-blue-700 dark:text-blue-300 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-blue-100/60 dark:border-blue-950/80">
-                <ShieldCheck size={14} className="text-teal-500 shrink-0 animate-pulse" />
-                Trusted Regional Trauma Hub & Rehab Center
-              </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-sans tracking-tight font-extrabold text-slate-900 dark:text-white leading-tight">
                 Advanced <span className="text-blue-600 dark:text-teal-400">Multi-Speciality Care</span> & Specialist Rehabilitation
@@ -256,24 +253,44 @@ export default function HomeView({
 
 
       {/* CALL TO ACTION ACCENT */}
-      <section className="max-w-4xl mx-auto py-6 text-center space-y-6">
-        <h2 className="text-xl md:text-2xl font-bold font-sans text-slate-900 dark:text-white">Ready to consult with our specialists?</h2>
-        <p className="text-xs text-slate-500 max-w-md mx-auto">
-          Coordinate timing slots or check availability of doctors directly over a chat with our administrative desk.
-        </p>
-        <div className="flex justify-center gap-4">
+      <section className="max-w-5xl mx-auto my-12 relative overflow-hidden bg-slate-900 dark:bg-slate-950 text-white rounded-3xl p-8 md:p-14 text-center space-y-8 shadow-2xl border border-slate-800">
+        {/* Subtle glow decorative elements */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 space-y-4 max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-sans tracking-tight font-extrabold text-white">
+            Need Expert Medical Advice?
+          </h2>
+          <p className="text-sm text-slate-300 leading-relaxed font-medium max-w-2xl mx-auto">
+            Contact us today to arrange direct, convenient OPD consultation timings or coordinate home nursing diagnostics with our specialists.
+          </p>
+        </div>
+
+        <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 max-w-3xl mx-auto">
           <button 
             onClick={() => onNavigate('contact')}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-md"
+            className="w-full sm:w-auto px-8 py-3.5 bg-white text-slate-950 hover:bg-slate-100 font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-white/5 cursor-pointer text-center"
           >
-            Locate Clinic
+            Visit Contact Desk
           </button>
+          
           <a 
             href={`tel:${deskLinePhone}`}
-            className="px-6 py-3 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold text-xs uppercase tracking-wider rounded-xl transition-all inline-flex items-center gap-2"
+            className="w-full sm:w-auto px-8 py-3.5 bg-slate-800/80 hover:bg-slate-800 text-white border border-slate-700/60 font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all inline-flex items-center justify-center gap-2 text-center"
           >
-            <Phone size={13} />
-            <span>Call Support</span>
+            <Phone size={14} className="text-blue-400 shrink-0" />
+            <span>Call +91 {deskLinePhone}</span>
+          </a>
+
+          <a 
+            href={`https://wa.me/91${deskLinePhone}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full sm:w-auto px-8 py-3.5 bg-[#00a884] hover:bg-[#008f6f] text-white font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all inline-flex items-center justify-center gap-2 text-center cursor-pointer"
+          >
+            <MessageCircle size={14} className="shrink-0" />
+            <span>WhatsApp Us</span>
           </a>
         </div>
       </section>
