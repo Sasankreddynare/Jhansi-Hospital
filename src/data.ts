@@ -19,7 +19,8 @@ export const DOCTORS: Doctor[] = [
     experience: 'Ex-Orthopedic Physical Therapist - SVIMS & BIRRD Hospital',
     specialty: 'Ortho & Neuro Rehabilitation',
     bio: 'Renowned expert in comprehensive ortho and neuro recovery. Member of Bar Council of India & A.P. High Court, combining scientific expertise with compassionate care programs.',
-    imageUrl: docDinesh
+    imageUrl: docDinesh,
+    schedule: 'Monday - Saturday'
   },
   {
     id: 'anthony-kirankumar',
@@ -29,7 +30,8 @@ export const DOCTORS: Doctor[] = [
     fellowship: 'Fellowship in Neuro Endoscopy',
     specialty: 'Neurosurgery',
     bio: 'Highly trained micro-neurosurgical specialist with advanced fellowship in minimally invasive Neuro Endoscopy. Dedicated to precision neurosurgeries.',
-    imageUrl: docAnantha
+    imageUrl: docAnantha,
+    schedule: 'Every Month 3rd Sunday'
   },
   {
     id: 'hari-nagendra',
@@ -38,7 +40,8 @@ export const DOCTORS: Doctor[] = [
     role: 'Pulmonary Medicine Specialist',
     specialty: 'Pulmonary Medicine',
     bio: 'Distinguished Lungs and Pulmonary health physician, guiding advanced interventions for asthma, COPD, sleep apneas, and general chest disorders.',
-    imageUrl: docNagendra
+    imageUrl: docNagendra,
+    schedule: 'Monday - Sunday'
   },
   {
     id: 'purna-chandra-rao',
@@ -47,7 +50,8 @@ export const DOCTORS: Doctor[] = [
     role: 'Consultant Orthopedic Surgeon',
     specialty: 'Orthopaedics',
     bio: 'Global orthopaedics veteran credentialed with Royal College of Surgeons (London). Expert in joint reconstructions, complex trauma, and corrective procedures.',
-    imageUrl: docPurna
+    imageUrl: docPurna,
+    schedule: 'Every Month 4th Tuesday'
   },
   {
     id: 'pradeep-reddy',
@@ -56,7 +60,8 @@ export const DOCTORS: Doctor[] = [
     role: 'Consultant Neurologist',
     specialty: 'Neurology',
     bio: 'Experienced clinical neurologist with rich clinical credentials from Madras Medical College. Dedicated to comprehensive stroke, epilepsy, and neuropathy management.',
-    imageUrl: docPradeep
+    imageUrl: docPradeep,
+    schedule: 'Every Month 1st Sunday'
   },
   {
     id: 'mahesh-reddy',
@@ -65,7 +70,8 @@ export const DOCTORS: Doctor[] = [
     role: 'Consultant Interventional Cardiologist',
     specialty: 'Cardiology',
     bio: 'Dynamic cardiovascular specialist with mastery in key cardiac diagnoses, preventive therapies, and cardiac rehabilitation supervision.',
-    imageUrl: docMahesh
+    imageUrl: docMahesh,
+    schedule: 'Every Sunday'
   },
   {
     id: 'shyam-sundar',
@@ -74,7 +80,8 @@ export const DOCTORS: Doctor[] = [
     role: 'Consultant Urologist & Andrologist',
     specialty: 'Urology',
     bio: 'Specialist in reconstructive urology, advanced laparoscopic surgeries, and-andrology, with premier clinical training in advanced urosurgery.',
-    imageUrl: docShyam
+    imageUrl: docShyam,
+    schedule: 'Every Month 2nd Sunday'
   },
   {
     id: 'ajay-babu',
@@ -83,7 +90,8 @@ export const DOCTORS: Doctor[] = [
     role: 'Consultant General & Laparoscopic Surgeon',
     specialty: 'General Surgery',
     bio: 'Dedicated abdominal surgeon with extensive background in state-of-the-art keyhole and standard operations, patient recovery focus.',
-    imageUrl: docAjay
+    imageUrl: docAjay,
+    schedule: 'Every Tuesday'
   }
 ];
 

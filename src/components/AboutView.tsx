@@ -71,6 +71,10 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
               <span className="bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/20 px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase font-mono">
                 Ex-SVIMS & BIRRD Specialist
               </span>
+              <span className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase font-mono flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Visit: {directorDoc.schedule || 'Monday - Saturday'}
+              </span>
             </div>
 
             <p className="text-slate-600 dark:text-slate-300 text-xs md:text-sm leading-relaxed max-w-3xl">
@@ -227,7 +231,10 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
               </div>
 
               <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-850 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-left">
-                <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] font-mono">OPD Hours: Mon - Sat (9am - 6pm)</span>
+                <span className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-[10px] font-mono flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse shrink-0"></span>
+                  Visit: {doc.schedule || 'Monday - Saturday'}
+                </span>
                 <a 
                   href={`https://wa.me/919440571584?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20would%20like%20to%20consult%2520with%2520${encodeURIComponent(doc.name)}.`}
                   target="_blank"

@@ -8,6 +8,7 @@ export interface Doctor {
   specialty: string;
   bio: string;
   imageUrl?: string;
+  schedule?: string;
 }
 
 export interface Department {
