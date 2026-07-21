@@ -158,7 +158,7 @@ export default function AboutView({ onNavigate }: AboutViewProps) {
                       : 'bg-white dark:bg-slate-900 text-slate-500 hover:text-slate-800 dark:hover:text-white border border-slate-250/60 dark:border-slate-800'
                   }`}
                 >
-                  {spec === 'All' ? 'All Specialities' : spec}
+                  {spec === 'All' ? 'All Specialties' : spec}
                 </button>
               );
             })}

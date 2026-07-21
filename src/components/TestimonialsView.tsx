@@ -261,7 +261,6 @@ export default function TestimonialsView({
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider font-mono">CODE: {rev.ticketCode}</span>
                     <button
                       onClick={() => upvoteReview(rev.id)}
                       disabled={upvotedReviewIds.includes(rev.id)}

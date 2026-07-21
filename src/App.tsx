@@ -509,7 +509,6 @@ export default function App() {
       {/* 4. RESPONSIVE MOBILE NAVIGATION PANEL */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-4 space-y-3 relative z-39 animate-fade-in text-left">
-          <p className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-widest pl-2">Jump to Page Section</p>
           
           <div className="grid grid-cols-2 gap-2">
             {[
@@ -535,23 +534,6 @@ export default function App() {
                 </button>
               );
             })}
-          </div>
-
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
-            <a 
-              href={`tel:${deskLine2.phone}`}
-              className="w-full py-3 bg-white dark:bg-transparent border border-slate-250 dark:border-slate-800 text-center rounded-xl text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center justify-center gap-1.5"
-            >
-              <Phone size={12} className="text-blue-600" />
-              <span>Call Support ({deskLine2.phone})</span>
-            </a>
-            
-            <button
-              onClick={() => handlePageChange('contact')}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-center rounded-xl text-xs font-bold uppercase tracking-wider shadow-md cursor-pointer"
-            >
-              Connect Now
-            </button>
           </div>
         </div>
       )}
@@ -650,90 +632,117 @@ export default function App() {
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
           
-          {/* Top Row: Brand & OPD hours */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-slate-900">
+          {/* Main Grid: Responsive column divisions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-900">
             
-            {/* White Brand Card */}
-            <div className="bg-white px-5 py-4 rounded-2xl flex items-center gap-3.5 shadow-xl border border-slate-200/50 shrink-0 max-w-sm">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center text-white shrink-0 shadow-md shadow-blue-500/10">
-                <HeartPulse size={18} />
+            {/* Column 1: Elegant Hospital Brand */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-600/10 border border-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
+                  <HeartPulse size={20} className="animate-pulse" />
+                </div>
+                <div className="text-left">
+                  <span className="font-sans font-black text-white text-base tracking-wider uppercase block leading-none">
+                    Sri Jhansi Hospital
+                  </span>
+                  <span className="text-[9px] text-teal-400 font-extrabold uppercase tracking-widest block mt-1.5 leading-none">
+                    Ortho & Stroke Rehab Centre
+                  </span>
+                </div>
               </div>
-              <div className="text-left">
-                <span className="font-sans font-black text-slate-950 text-sm tracking-wider uppercase block leading-none">
-                  Sri Jhansi Hospital
-                </span>
-                <span className="text-[9px] text-teal-600 font-extrabold uppercase tracking-widest block mt-1 leading-none">
-                  We Care • We Rehabilitate
-                </span>
+              <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                A premier clinical healthcare institution in Piler town, specializing in advanced orthopaedic treatments, post-stroke recovery, and comprehensive physical rehabilitation.
+              </p>
+              <div className="pt-2">
+                <a 
+                  href="https://instagram.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 border border-slate-800 rounded-xl hover:bg-slate-900 hover:text-white transition-all text-[11px] font-bold uppercase tracking-wider text-slate-350 bg-slate-950/40"
+                >
+                  <Instagram size={13} className="text-pink-500" />
+                  <span>Instagram</span>
+                </a>
               </div>
             </div>
 
-            {/* OPD Hours Capsule Pill */}
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl md:rounded-full px-5 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-4 text-xs text-slate-350 shadow-inner">
-              <div className="flex items-center gap-1.5 text-blue-400 font-bold uppercase tracking-wider text-[10.5px]">
-                <Clock size={13} className="animate-pulse shrink-0" />
-                <span>OPD HOURS:</span>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="font-medium text-slate-300">Mon - Sat: <strong className="text-white font-semibold">9 AM - 6 PM</strong></span>
-                <span className="text-slate-800 hidden sm:inline">•</span>
-                <span className="font-medium text-slate-400">Sunday: <strong className="text-slate-500 font-medium">Closed</strong></span>
+            {/* Column 2: Quick Scroll Navigation */}
+            <div className="space-y-4 text-left">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-250 border-l-2 border-teal-500 pl-2.5">
+                Quick Navigation
+              </h4>
+              <ul className="space-y-2.5 text-xs font-semibold">
+                {[
+                  { id: 'home', label: 'Home Dashboard' },
+                  { id: 'about', label: 'About Our Clinic' },
+                  { id: 'services', label: 'Clinical Services' },
+                  { id: 'gallery', label: 'Photo & Video Gallery' },
+                  { id: 'testimonials', label: 'Patient Testimonials' },
+                  { id: 'contact', label: 'Contact & Location' }
+                ].map((item) => (
+                  <li key={item.id}>
+                    <button 
+                      onClick={() => handlePageChange(item.id)}
+                      className={`hover:text-blue-400 transition-colors cursor-pointer block text-left ${
+                        activePage === item.id ? 'text-teal-400' : 'text-slate-400'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Column 3: Contact & Landmarks */}
+            <div className="space-y-4 text-left">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-250 border-l-2 border-teal-500 pl-2.5">
+                Clinical Location
+              </h4>
+              <div className="space-y-3.5 text-xs font-medium text-slate-350">
+                <div className="flex gap-3 items-start">
+                  <MapPin size={15} className="text-blue-500 shrink-0 mt-0.5" />
+                  <span className="leading-relaxed">Beside Tirupati Bypass Road,<br />Pileru, AP - 517214</span>
+                </div>
+                <div className="flex gap-3 items-start font-mono">
+                  <Phone size={15} className="text-blue-500 shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-1">
+                    <a href={`tel:${deskLine1.phone}`} className="hover:text-blue-400 transition-colors">{deskLine1.phone}</a>
+                    <a href={`tel:${deskLine2.phone}`} className="hover:text-blue-400 transition-colors">{deskLine2.phone}</a>
+                  </div>
+                </div>
+                <div className="flex gap-3 items-start">
+                  <Mail size={15} className="text-blue-500 shrink-0 mt-0.5" />
+                  <a href="mailto:healthcare@srijhansihospital.com" className="hover:text-blue-400 transition-colors break-all">healthcare@srijhansihospital.com</a>
+                </div>
               </div>
             </div>
 
-          </div>
-
-          {/* Middle Row: Flat Contact Details Bar */}
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 py-8 text-slate-400 font-medium leading-relaxed border-b border-slate-900/60">
-            
-            <div className="flex flex-col md:flex-row flex-wrap items-start md:items-center gap-6 md:gap-8">
-              
-              {/* Address with MapPin */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-blue-500 shrink-0 border border-slate-800/50">
-                  <MapPin size={14} />
+            {/* Column 4: OPD Hours & General Timings */}
+            <div className="space-y-4 text-left">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-250 border-l-2 border-teal-500 pl-2.5">
+                OPD Consulting Hours
+              </h4>
+              <div className="bg-slate-900/40 border border-slate-900/60 p-4 rounded-2xl space-y-3 font-medium">
+                <div className="flex items-center gap-2 text-blue-400 font-bold uppercase tracking-wider text-[10px]">
+                  <Clock size={12} className="shrink-0" />
+                  <span>Consultation Timings</span>
                 </div>
-                <span className="text-slate-300 font-medium text-[13px]">Beside Tirupati Bypass Rd, Pileru, AP - 517214</span>
-              </div>
-
-              {/* Vertical divider on desktop */}
-              <div className="hidden lg:block h-5 w-px bg-slate-900"></div>
-
-              {/* Phone Contacts */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-blue-500 shrink-0 border border-slate-800/50">
-                  <Phone size={14} />
+                <div className="space-y-2 text-xs text-slate-350">
+                  <div className="flex justify-between border-b border-slate-900/40 pb-1.5">
+                    <span>Monday - Saturday:</span>
+                    <strong className="text-white">9 AM - 6 PM</strong>
+                  </div>
+                  <div className="flex justify-between pb-0.5">
+                    <span>Sunday:</span>
+                    <strong className="text-slate-500 font-medium">Closed</strong>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2.5 font-mono text-[13px]">
-                  <a href={`tel:${deskLine1.phone}`} className="text-slate-300 hover:text-blue-400 transition-colors">{deskLine1.phone}</a>
-                  <span className="text-slate-800">|</span>
-                  <a href={`tel:${deskLine2.phone}`} className="text-slate-300 hover:text-blue-400 transition-colors">{deskLine2.phone}</a>
+                <div className="text-[9.5px] leading-normal text-slate-500 font-medium">
+                  *Emergency trauma cases are triaged 24/7. Prior booking via phone is recommended.
                 </div>
               </div>
-
-              {/* Vertical divider on desktop */}
-              <div className="hidden lg:block h-5 w-px bg-slate-900"></div>
-
-              {/* Email contact */}
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-blue-500 shrink-0 border border-slate-800/50">
-                  <Mail size={14} />
-                </div>
-                <a href="mailto:healthcare@srijhansihospital.com" className="text-slate-300 hover:text-blue-400 transition-colors text-[13px]">healthcare@srijhansihospital.com</a>
-              </div>
-
             </div>
-
-            {/* Instagram Social Pill */}
-            <a 
-              href="https://instagram.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 border border-slate-800 rounded-full hover:bg-slate-900 hover:text-white transition-all text-xs font-bold uppercase tracking-wider text-slate-300 bg-slate-950/40 shrink-0"
-            >
-              <Instagram size={14} className="text-pink-500" />
-              <span>Instagram</span>
-            </a>
 
           </div>
 

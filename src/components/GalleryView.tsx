@@ -20,78 +20,56 @@ import {
   CheckCircle2,
   Video,
   Play,
-  Heart
+  Heart,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Image as ImageIcon
 } from 'lucide-react';
 
-interface VideoChapter {
-  time: string;
-  seconds: number;
-  title: string;
-  description: string;
-  doctor?: string;
-  category: 'Infrastructure' | 'Specialist Consultation' | 'Diagnostics & Equipment' | 'Emergency Contact';
-}
+const galleryMain = new URL('../assets/images/Gallery-main.jpeg', import.meta.url).href;
+const gallery1 = new URL('../assets/images/Gallery-1.jpeg', import.meta.url).href;
+const gallery2 = new URL('../assets/images/Gallery-2.jpeg', import.meta.url).href;
+const gallery3 = new URL('../assets/images/Gallery-3.jpeg', import.meta.url).href;
+const gallery4 = new URL('../assets/images/Gallery-4.jpeg', import.meta.url).href;
+const gallery5 = new URL('../assets/images/Gallery-5.jpeg', import.meta.url).href;
 
-const TOUR_CHAPTERS: VideoChapter[] = [
+const GALLERY_PHOTOS = [
   {
-    time: "0:00",
-    seconds: 0,
-    title: "Intro & Clinical Premise",
-    description: "Welcome to Sri Jhansi Multi-Speciality Ortho & Stroke Rehab Centre in Piler town.",
+    src: galleryMain,
+    title: "Sri Jhansi Hospital Premises",
+    desc: "Our primary clinical facilities located beside Tirupati Bypass Road, Piler, featuring ample parking and accessible patient entry.",
     category: "Infrastructure"
   },
   {
-    time: "0:10",
-    seconds: 10,
-    title: "General Wards & Nursing Stations",
-    description: "Overview of high-quality sanitation, clean lobbies, and active general wards.",
-    category: "Infrastructure"
+    src: gallery1,
+    title: "Advanced Physiotherapy Center",
+    desc: "State-of-the-art orthopaedic and stroke rehabilitation unit equipped with electrotherapy and mechanized mobility training systems.",
+    category: "Rehabilitation"
   },
   {
-    time: "0:23",
-    seconds: 23,
-    title: "Orthopaedics & Physiotherapy",
-    description: "Specialist consultation with Chief Doctor Dr. M. Dinesh Kumar Reddy (MPT Ortho).",
-    doctor: "Dr. M. Dinesh Kumar Reddy",
-    category: "Specialist Consultation"
+    src: gallery2,
+    title: "High-Precision Diagnostic Labs",
+    desc: "Fully computerized clinical pathology, biochemistry, and hormone analysis suite for accurate diagnosis and prompt reports.",
+    category: "Diagnostics"
   },
   {
-    time: "0:32",
-    seconds: 32,
-    title: "Pulmonology & Asthmatic Care",
-    description: "Clinical brief with General & Chest Physician Dr. Atla Hari Nagendra (Pulmonary).",
-    doctor: "Dr. Atla Hari Nagendra",
-    category: "Specialist Consultation"
+    src: gallery3,
+    title: "Cohesive & Clean Patient Wards",
+    desc: "Hygienic general and semi-private inpatient wards designed with clinical precision for patient comfort and 24/7 care monitoring.",
+    category: "Wards & Inpatients"
   },
   {
-    time: "0:56",
-    seconds: 56,
-    title: "Joint & Spine Surgery Triage",
-    description: "Bone and Joint surgery briefing under Dr. N. Purnachandra Rao (MS Ortho, MS London).",
-    doctor: "Dr. N. Purnachandra Rao",
-    category: "Specialist Consultation"
+    src: gallery4,
+    title: "Outpatient Specialist Consulting Chamber",
+    desc: "Dedicated medical chambers for expert consultation with our chief orthopaedic specialists and consulting neurologists.",
+    category: "Consultations"
   },
   {
-    time: "1:15",
-    seconds: 115,
-    title: "Brain & Spine Neurosurgery",
-    description: "Micro-decompression and neurological treatment under Dr. Anantha Kiran Kumar.",
-    doctor: "Dr. Anantha Kiran Kumar",
-    category: "Specialist Consultation"
-  },
-  {
-    time: "2:00",
-    seconds: 120,
-    title: "Advanced Diagnostic Facilities",
-    description: "Interactive tour of high-end CT scans, fully automated labs, and digital X-rays.",
-    category: "Diagnostics & Equipment"
-  },
-  {
-    time: "2:12",
-    seconds: 132,
-    title: "Address & Dedicated Intake Helpline",
-    description: "Direct contact info, landmark guidance on Tirupati Bypass Road, and active hotlines.",
-    category: "Emergency Contact"
+    src: gallery5,
+    title: "Emergency Ortho Care & Treatment Unit",
+    desc: "Emergency dressing and immediate trauma triage center fully equipped with modern medical devices and sterile tools.",
+    category: "Trauma Care"
   }
 ];
 
@@ -104,11 +82,8 @@ export default function GalleryView() {
     return saved;
   });
 
-  const [activeChapter, setActiveChapter] = useState<number>(0);
-  const [startSeconds, setStartSeconds] = useState<number>(0);
-  const [showConfig, setShowConfig] = useState(false);
-  const [inputUrl, setInputUrl] = useState('');
   const [toastMessage, setToastMessage] = useState('');
+  const [activePhoto, setActivePhoto] = useState<number | null>(null);
   
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -128,168 +103,40 @@ export default function GalleryView() {
     return url.includes('youtube.com') || url.includes('youtu.be') || url.includes('youtube-nocookie.com');
   };
 
-  const getYouTubeEmbedUrl = (url: string, start: number) => {
+  const getYouTubeEmbedUrl = (url: string) => {
     let videoId = 'y3YFpXv7o6s'; // default video
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     if (match && match[2].length === 11) {
       videoId = match[2];
     }
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&start=${start}&rel=0&controls=1`;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&rel=0&controls=1`;
   };
 
-  const handleChapterClick = (chapter: VideoChapter, index: number) => {
-    setActiveChapter(index);
-    setStartSeconds(chapter.seconds);
-    
-    if (!isYouTubeUrl(videoUrl) && videoRef.current) {
-      videoRef.current.currentTime = chapter.seconds;
-      videoRef.current.play().catch(() => {});
-    }
-
-    showToast(`Seeking to ${chapter.time} - ${chapter.title}`);
+  const handlePrevPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activePhoto === null) return;
+    setActivePhoto((prev) => (prev !== null && prev > 0 ? prev - 1 : GALLERY_PHOTOS.length - 1));
   };
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage('');
-    }, 2500);
-  };
-
-  const handleSaveVideoUrl = (e: React.FormEvent) => {
-    e.preventDefault();
-    const clean = inputUrl.trim();
-    if (!clean) return;
-
-    setVideoUrl(clean);
-    localStorage.setItem('sri_jhansi_hospital_video_url', clean);
-    setStartSeconds(0);
-    setActiveChapter(0);
-    setShowConfig(false);
-    setInputUrl('');
-    showToast('Video Stream Synced successfully!');
-
-    // Dispatch storage event to notify other components
-    window.dispatchEvent(new Event('storage'));
-  };
-
-  const handleResetVideo = () => {
-    const defaultUrl = 'https://res.cloudinary.com/durqgsig/video/upload/v1784649439/video_about_hospital_feelzg.mp4';
-    setVideoUrl(defaultUrl);
-    localStorage.setItem('sri_jhansi_hospital_video_url', defaultUrl);
-    setStartSeconds(0);
-    setActiveChapter(0);
-    setShowConfig(false);
-    showToast('Reset to official hospital video.');
-    window.dispatchEvent(new Event('storage'));
+  const handleNextPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activePhoto === null) return;
+    setActivePhoto((prev) => (prev !== null && prev < GALLERY_PHOTOS.length - 1 ? prev + 1 : 0));
   };
 
   return (
-    <div className="space-y-10 py-4 text-left">
+    <div className="space-y-12 py-4 text-left">
       
       {/* HEADER SECTION */}
       <div className="text-center max-w-3xl mx-auto mb-2 space-y-3">
-        <span className="inline-flex items-center gap-1 text-[10px] uppercase font-black tracking-widest text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 px-3.5 py-1.5 rounded-full border border-teal-100/40 dark:border-teal-900/30">
-          <Tv size={11} className="text-teal-500 animate-pulse" />
-          Interactive Virtual Tour
-        </span>
         <h2 className="text-2xl md:text-3.5xl font-sans tracking-tight font-extrabold text-slate-900 dark:text-white">
-          Sri Jhansi Hospital Video Gallery
+          Sri Jhansi Hospital Gallery
         </h2>
         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-          Watch our verified infrastructure walkthrough, specialist clinic previews, and high-precision diagnostics labs at our Piler Town premises.
+          Watch our verified infrastructure walkthrough video and browse through photos of our advanced ortho rehab, state-of-the-art labs, and patient recovery facilities.
         </p>
       </div>
-
-      {/* QUICK VIDEO STREAM SETTINGS ACTION ROW */}
-      <div className="flex justify-end max-w-6xl mx-auto">
-        <button
-          onClick={() => {
-            setInputUrl(videoUrl);
-            setShowConfig(!showConfig);
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer border border-slate-200 dark:border-slate-800"
-        >
-          <Settings size={13} className={showConfig ? 'rotate-45' : ''} />
-          <span>Change Video Stream</span>
-        </button>
-      </div>
-
-      {/* EXPANDABLE VIDEO STREAM CONTROLLER FORM */}
-      {showConfig && (
-        <div className="max-w-3xl mx-auto p-5 bg-white dark:bg-slate-900 border border-slate-250 dark:border-slate-800 rounded-2xl shadow-xl animate-fade-in space-y-4">
-          <div className="text-left">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-1">
-              Configure Video Source
-            </h4>
-            <p className="text-[11px] text-slate-500 leading-normal">
-              Paste an external MP4 direct stream URL or any valid YouTube video link to showcase custom layouts.
-            </p>
-          </div>
-
-          <form onSubmit={handleSaveVideoUrl} className="space-y-3">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="https://youtube.com/watch?v=... or https://example.com/video.mp4"
-                value={inputUrl}
-                onChange={(e) => setInputUrl(e.target.value)}
-                className="flex-grow bg-slate-50 dark:bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-850 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-teal-500"
-                required
-              />
-              <button
-                type="submit"
-                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer shadow-xs whitespace-nowrap"
-              >
-                Sync Stream
-              </button>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-1.5">
-              <div className="flex gap-2 flex-grow">
-                <button
-                  type="button"
-                  onClick={handleResetVideo}
-                  className="flex-1 px-3 py-2 bg-slate-50 hover:bg-slate-100 dark:bg-transparent border border-slate-200 dark:border-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer text-center"
-                >
-                  Reset Tour
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setInputUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')}
-                  className="flex-1 px-3 py-2 bg-slate-50 hover:bg-slate-100 dark:bg-transparent border border-slate-200 dark:border-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer text-center"
-                >
-                  Load Sample MP4
-                </button>
-              </div>
-
-              <label className="flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-50 hover:bg-teal-100/80 dark:bg-teal-950/20 dark:hover:bg-teal-950/30 text-[10px] text-teal-750 dark:text-teal-400 font-bold uppercase tracking-wider rounded-lg border border-dashed border-teal-200 dark:border-teal-900 transition-colors cursor-pointer text-center whitespace-nowrap shrink-0">
-                <Video size={12} className="text-teal-550 shrink-0" />
-                <span>Upload Local Video</span>
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const objectUrl = URL.createObjectURL(file);
-                      setVideoUrl(objectUrl);
-                      localStorage.setItem('sri_jhansi_hospital_video_url', objectUrl);
-                      setStartSeconds(0);
-                      setActiveChapter(0);
-                      setShowConfig(false);
-                      showToast('Local Video Loaded successfully!');
-                      window.dispatchEvent(new Event('storage'));
-                    }
-                  }}
-                />
-              </label>
-            </div>
-          </form>
-        </div>
-      )}
 
       {/* TOAST SYSTEM INDICATOR */}
       {toastMessage && (
@@ -299,173 +146,149 @@ export default function GalleryView() {
         </div>
       )}
 
-      {/* VIRTUAL THEATRE & CHAPTER TIMELINE GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto">
+      {/* VIRTUAL THEATRE CENTERED LAYOUT */}
+      <div className="max-w-4xl mx-auto w-full flex flex-col gap-6">
         
-        {/* THEATRE PLAYER COLUMN */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
+        {/* THEATRE PLAYER CONTAINER */}
+        <div className="relative rounded-3xl overflow-hidden aspect-video bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl flex items-center justify-center">
           
-          <div className="relative rounded-3xl overflow-hidden aspect-video bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-xl flex items-center justify-center">
-            
-            {/* Conditional Player rendering */}
-            {isYouTubeUrl(videoUrl) ? (
-              <iframe
-                title="Sri Jhansi Hospital Promotional Tour"
-                src={getYouTubeEmbedUrl(videoUrl, startSeconds)}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
-            ) : (
-              <video
-                ref={videoRef}
-                src={videoUrl}
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-full object-contain"
-              />
-            )}
-
-            {/* Float category indicator */}
-            <span className="absolute top-4 left-4 bg-teal-600 backdrop-blur-md text-white text-[9px] font-black tracking-widest uppercase px-2.5 py-1 rounded-md z-10 flex items-center gap-1 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-              Live Video Stream
-            </span>
-          </div>
-
-          {/* Current Video Info Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/85 dark:border-slate-800 p-5 rounded-3xl text-left space-y-3">
-            <div className="flex justify-between items-start gap-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 block">
-                  NOW BROADCASTING
-                </span>
-                <h3 className="font-sans font-black text-slate-900 dark:text-white uppercase text-sm md:text-base tracking-tight flex items-center gap-2">
-                  <Video size={16} className="text-teal-500" />
-                  {isYouTubeUrl(videoUrl) ? "Official Clinical Showcase & Tour Video" : "Custom Direct Video stream File"}
-                </h3>
-              </div>
-              <a 
-                href={videoUrl} 
-                target="_blank" 
-                rel="noreferrer"
-                className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-850 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
-                title="Open Source Video"
-              >
-                <ExternalLink size={14} />
-              </a>
-            </div>
-
-            <p className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-              This digital media asset provides an on-camera verification of the clinical infrastructure at Sri Jhansi Ortho & Stroke Rehabilitation Clinic. Managed directly under Chief Specialist <strong className="text-slate-800 dark:text-slate-200">Dr. M. Dinesh Kumar Reddy</strong>.
-            </p>
-
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap gap-4 text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">
-              <div className="flex items-center gap-1.5">
-                <Clock size={11} className="text-teal-500" />
-                <span>Duration: ~2:30 min</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Activity size={11} className="text-teal-500" />
-                <span>Format: Direct HD Embed</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Shield size={11} className="text-teal-500" />
-                <span>Clinical Registry Certified</span>
-              </div>
-            </div>
-          </div>
-
+          {/* Conditional Player rendering */}
+          {isYouTubeUrl(videoUrl) ? (
+            <iframe
+              title="Sri Jhansi Hospital Facility Tour & Doctors Showcase"
+              src={getYouTubeEmbedUrl(videoUrl)}
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+          ) : (
+            <video
+              ref={videoRef}
+              src={videoUrl}
+              controls
+              autoPlay
+              playsInline
+              className="w-full h-full object-contain"
+            />
+          )}
         </div>
-
-        {/* TIMELINE CHAPTERS PANEL */}
-        <div className="lg:col-span-5 flex flex-col gap-4 text-left">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/85 dark:border-slate-800 rounded-3xl p-5 shadow-xs flex flex-col h-[525px]">
-            
-            {/* Header */}
-            <div className="pb-4 border-b border-slate-100 dark:border-slate-800 space-y-1">
-              <h3 className="font-sans font-black text-slate-900 dark:text-white text-xs md:text-sm uppercase tracking-wider flex items-center gap-2">
-                <ListVideo size={16} className="text-teal-500" />
-                Interactive Chapter Guides
-              </h3>
-              <p className="text-[10px] text-slate-450 leading-normal font-medium">
-                Click any medical segment below to fast-forward the player to that specific clinical showcase:
-              </p>
-            </div>
-
-            {/* Chapters list */}
-            <div className="flex-grow overflow-y-auto pr-1.5 pt-3 space-y-3.5 scrollbar-thin">
-              {TOUR_CHAPTERS.map((chap, idx) => {
-                const isActive = activeChapter === idx;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleChapterClick(chap, idx)}
-                    className={`w-full text-left p-3 rounded-2xl border transition-all flex gap-3.5 items-start cursor-pointer group relative ${
-                      isActive 
-                        ? 'bg-slate-950 border-slate-950 text-white shadow-md scale-[1.01]' 
-                        : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-950/40 border-slate-100 dark:border-slate-850 text-slate-850 hover:border-slate-200 dark:hover:border-slate-800'
-                    }`}
-                  >
-                    {/* Timestamp Bubble */}
-                    <span className={`px-2 py-1.5 rounded-lg text-[9px] font-mono font-bold shrink-0 tracking-wider flex items-center justify-center min-w-[42px] leading-none ${
-                      isActive 
-                        ? 'bg-teal-500 text-slate-950 font-black' 
-                        : 'bg-slate-200 dark:bg-slate-850 text-slate-600 dark:text-slate-400'
-                    }`}>
-                      {chap.time}
-                    </span>
-
-                    {/* Chapter Info */}
-                    <div className="space-y-1 min-w-0 flex-grow">
-                      <div className="flex justify-between items-start gap-1">
-                        <h4 className={`text-[11.5px] font-extrabold uppercase tracking-tight truncate leading-snug ${
-                          isActive ? 'text-teal-300' : 'text-slate-900 dark:text-slate-100 group-hover:text-blue-700 dark:group-hover:text-teal-400'
-                        }`}>
-                          {chap.title}
-                        </h4>
-                        
-                        {/* Play Indicator Icon */}
-                        {isActive && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-ping shrink-0 mt-1"></span>
-                        )}
-                      </div>
-
-                      <p className={`text-[10.5px] leading-relaxed font-medium line-clamp-2 ${
-                        isActive ? 'text-slate-350' : 'text-slate-450 dark:text-slate-400'
-                      }`}>
-                        {chap.description}
-                      </p>
-
-                      {chap.doctor && (
-                        <div className={`text-[9px] font-mono font-extrabold uppercase tracking-widest pt-1 flex items-center gap-1 ${
-                          isActive ? 'text-teal-400' : 'text-slate-500'
-                        }`}>
-                          <span className="w-1 h-1 rounded-full bg-current"></span>
-                          {chap.doctor}
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Quick jump instruction */}
-            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
-              <span className="inline-flex items-center gap-1.5 text-[9px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                <Sliders size={10} />
-                Hover & Select any Chapter to Jump
-              </span>
-            </div>
-
-          </div>
-        </div>
-
       </div>
 
+      {/* CLINICAL PHOTO GALLERY SECTION */}
+      <div className="max-w-6xl mx-auto pt-4 space-y-8">
+        <div className="border-t border-slate-200/60 dark:border-slate-800/60 pt-10 text-center max-w-2xl mx-auto space-y-2">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold tracking-widest text-teal-600 dark:text-teal-400 uppercase bg-teal-50 dark:bg-teal-950/30 px-3 py-1 rounded-md">
+            Clinical Facilities
+          </span>
+          <h3 className="text-xl md:text-2xl font-sans tracking-tight font-extrabold text-slate-900 dark:text-white uppercase">
+            On-Premises Infrastructure Photos
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Verified photos showing high-quality infrastructure, specialized trauma care units, diagnostic systems, and rehab spaces.
+          </p>
+        </div>
 
+        {/* 3x2 Grid for Gallery-*.jpeg */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {GALLERY_PHOTOS.map((photo, idx) => (
+            <div 
+              key={idx}
+              onClick={() => setActivePhoto(idx)}
+              className="group bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/85 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-750 transition-all duration-350 cursor-pointer flex flex-col text-left"
+            >
+              {/* Image box with overlay */}
+              <div className="relative aspect-video overflow-hidden bg-slate-100 dark:bg-slate-950">
+                <img 
+                  src={photo.src}
+                  alt={photo.title}
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-350 flex items-end p-4">
+                  <span className="text-[10px] font-mono font-bold uppercase text-white bg-slate-950/80 px-2.5 py-1 rounded-md tracking-wider flex items-center gap-1.5 backdrop-blur-xs">
+                    <Eye size={12} />
+                    View Details
+                  </span>
+                </div>
+                <span className="absolute top-3 left-3 bg-teal-600 text-white text-[9px] font-mono font-black tracking-wider uppercase px-2 py-1 rounded-md shadow-xs">
+                  {photo.category}
+                </span>
+              </div>
+
+              {/* Text Area */}
+              <div className="p-5 flex-grow flex flex-col justify-between space-y-1.5">
+                <h4 className="font-sans font-bold text-slate-900 dark:text-white text-[13px] md:text-sm uppercase tracking-tight group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                  {photo.title}
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">
+                  {photo.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* LIGHTBOX MODAL */}
+      {activePhoto !== null && (
+        <div 
+          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setActivePhoto(null)}
+        >
+          {/* Main frame */}
+          <div 
+            className="relative max-w-4xl w-full bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden flex flex-col shadow-2xl animate-scale-up"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close trigger */}
+            <button 
+              onClick={() => setActivePhoto(null)}
+              className="absolute top-4 right-4 z-20 p-2 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white border border-slate-800 transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Navigation Left */}
+            <button 
+              onClick={handlePrevPhoto}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white border border-slate-800 transition-colors cursor-pointer"
+            >
+              <ChevronLeft size={20} />
+            </button>
+
+            {/* Navigation Right */}
+            <button 
+              onClick={handleNextPhoto}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white border border-slate-800 transition-colors cursor-pointer"
+            >
+              <ChevronRight size={20} />
+            </button>
+
+            {/* Large Image container */}
+            <div className="aspect-video w-full bg-slate-950 flex items-center justify-center">
+              <img 
+                src={GALLERY_PHOTOS[activePhoto].src}
+                alt={GALLERY_PHOTOS[activePhoto].title}
+                referrerPolicy="no-referrer"
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            {/* Details overlay bar */}
+            <div className="p-6 bg-slate-950/95 border-t border-slate-900 text-left space-y-2">
+              <span className="inline-flex items-center gap-1 text-[9px] font-mono font-black text-teal-400 uppercase tracking-widest bg-teal-950/50 px-2 py-1 rounded-md">
+                {GALLERY_PHOTOS[activePhoto].category}
+              </span>
+              <h4 className="text-base font-sans font-black text-white uppercase tracking-tight">
+                {GALLERY_PHOTOS[activePhoto].title}
+              </h4>
+              <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                {GALLERY_PHOTOS[activePhoto].desc}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
