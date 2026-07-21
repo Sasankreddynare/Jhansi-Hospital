@@ -114,7 +114,7 @@ export default function HomeView({
                 <div className="relative bg-white dark:bg-slate-900 p-2.5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-lg overflow-hidden">
                   
                   {/* Video Screen */}
-                  <div className="rounded-2xl overflow-hidden aspect-video sm:aspect-square max-h-[360px] bg-slate-950 relative group/video shadow-inner flex items-center justify-center min-h-[300px]">
+                  <div className="rounded-2xl overflow-hidden aspect-video bg-slate-950 relative group/video shadow-inner flex items-center justify-center w-full">
                     {videoError ? (
                       <div className="absolute inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center gap-4 z-20">
                         <div className="w-12 h-12 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 animate-bounce">
@@ -193,7 +193,7 @@ export default function HomeView({
                       <video
                         ref={videoRef}
                         src={videoUrl}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                         loop
                         muted={videoMuted}
                         playsInline

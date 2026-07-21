@@ -322,7 +322,8 @@ export default function GalleryView() {
                 src={videoUrl}
                 controls
                 autoPlay
-                className="w-full h-full object-cover"
+                playsInline
+                className="w-full h-full object-contain"
               />
             )}
 
