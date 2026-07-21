@@ -12,7 +12,8 @@ import {
   Activity,
   Phone,
   ArrowUpRight,
-  MessageCircle
+  MessageCircle,
+  Video
 } from 'lucide-react';
 
 interface HomeViewProps {
@@ -125,33 +126,58 @@ export default function HomeView({
                             The direct MP4 stream was blocked or expired. Select an ultra-reliable YouTube preset or Google CDN video below.
                           </p>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs pt-1">
-                          <button
-                            onClick={() => {
-                              const newUrl = 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
-                              setVideoUrl(newUrl);
-                              localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
-                              setVideoError(false);
-                              setVideoPlaying(true);
-                            }}
-                            className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            <Play size={10} className="fill-white" />
-                            YouTube Tour
-                          </button>
-                          <button
-                            onClick={() => {
-                              const newUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-                              setVideoUrl(newUrl);
-                              localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
-                              setVideoError(false);
-                              setVideoPlaying(true);
-                            }}
-                            className="flex-1 py-2 px-3 bg-teal-600 hover:bg-teal-550 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            <HeartPulse size={10} />
-                            Google CDN
-                          </button>
+                        <div className="flex flex-col gap-2 w-full max-w-xs pt-1">
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                const newUrl = 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
+                                setVideoUrl(newUrl);
+                                localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
+                                setVideoError(false);
+                                setVideoPlaying(true);
+                                window.dispatchEvent(new Event('storage'));
+                              }}
+                              className="flex-1 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider"
+                            >
+                              <Play size={10} className="fill-white" />
+                              YouTube
+                            </button>
+                            <button
+                              onClick={() => {
+                                const newUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+                                setVideoUrl(newUrl);
+                                localStorage.setItem('sri_jhansi_hospital_video_url', newUrl);
+                                setVideoError(false);
+                                setVideoPlaying(true);
+                                window.dispatchEvent(new Event('storage'));
+                              }}
+                              className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider border border-slate-700"
+                            >
+                              <HeartPulse size={10} />
+                              Sample MP4
+                            </button>
+                          </div>
+
+                          <label className="w-full py-2 px-3 bg-teal-600 hover:bg-teal-550 text-white font-bold text-[10px] rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 uppercase tracking-wider text-center">
+                            <Video size={11} />
+                            <span>Upload Local Video File</span>
+                            <input
+                              type="file"
+                              accept="video/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  const objectUrl = URL.createObjectURL(file);
+                                  setVideoUrl(objectUrl);
+                                  localStorage.setItem('sri_jhansi_hospital_video_url', objectUrl);
+                                  setVideoError(false);
+                                  setVideoPlaying(true);
+                                  window.dispatchEvent(new Event('storage'));
+                                }
+                              }}
+                            />
+                          </label>
                         </div>
                       </div>
                     ) : isYouTubeUrl(videoUrl) ? (

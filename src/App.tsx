@@ -22,7 +22,8 @@ import {
   ArrowRight,
   Sparkles,
   Mail,
-  Instagram
+  Instagram,
+  Video
 } from 'lucide-react';
 
 import { DOCTORS, DEPARTMENTS, SERVICES, TESTIMONIALS, REHAB_MILESTONES } from './data';
@@ -109,11 +110,24 @@ export default function App() {
   // Tour Video Player States
   const [videoUrl, setVideoUrl] = useState(() => {
     const saved = localStorage.getItem('sri_jhansi_hospital_video_url');
-    if (!saved || saved.includes('mixkit.co')) {
-      return 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
+    if (!saved || saved.includes('mixkit.co') || saved.startsWith('blob:') || saved.includes('y3YFpXv7o6s')) {
+      return 'https://res.cloudinary.com/durqgsig/video/upload/v1784649439/video_about_hospital_feelzg.mp4';
     }
     return saved;
   });
+
+  // Synchronize video configuration changes between components (Home and Gallery)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('sri_jhansi_hospital_video_url');
+      if (saved) {
+        setVideoUrl(saved);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   const [videoPlaying, setVideoPlaying] = useState(true);
   const [videoMuted, setVideoMuted] = useState(true);
   const [videoLoading, setVideoLoading] = useState(true);
@@ -789,16 +803,48 @@ export default function App() {
 
                   <button
                     type="button"
-                    onClick={() => setTempUrlInput('https://www.youtube.com/watch?v=y3YFpXv7o6s')}
+                    onClick={() => setTempUrlInput('https://res.cloudinary.com/durqgsig/video/upload/v1784649439/video_about_hospital_feelzg.mp4')}
                     className="w-full text-left px-3 py-2 bg-slate-50 dark:bg-slate-800/50 hover:bg-teal-50 dark:hover:bg-teal-950/10 border border-slate-200 dark:border-slate-800 rounded-xl text-[10px] text-slate-750 dark:text-slate-200 transition-all flex items-center justify-between font-medium cursor-pointer"
                   >
                     <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                      YouTube Facility Tour Video
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                      Sri Jhansi Walkthrough Video Stream
                     </span>
-                    <span className="text-[9px] text-red-600 dark:text-red-400 font-bold font-mono">Highly Recommended</span>
+                    <span className="text-[9px] text-teal-650 dark:text-teal-400 font-bold font-mono">Cloud Walkthrough</span>
                   </button>
                 </div>
+              </div>
+
+              <div className="border-t border-slate-100 dark:border-slate-800/80 pt-3 space-y-2">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                  Or Play Local Video File
+                </label>
+                <label className="flex flex-col items-center justify-center gap-1.5 w-full px-4 py-3 bg-teal-50 hover:bg-teal-100/80 dark:bg-teal-950/20 dark:hover:bg-teal-950/30 text-teal-700 dark:text-teal-400 border border-dashed border-teal-200 dark:border-teal-900 rounded-2xl text-[10.5px] font-bold uppercase tracking-wider transition-all cursor-pointer text-center">
+                  <span className="flex items-center gap-1.5">
+                    <Video size={13} className="text-teal-550 shrink-0" />
+                    <span>Select Video from Device</span>
+                  </span>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const objectUrl = URL.createObjectURL(file);
+                        setVideoUrl(objectUrl);
+                        localStorage.setItem('sri_jhansi_hospital_video_url', objectUrl);
+                        setVideoPlaying(true);
+                        setVideoError(false);
+                        setShowVideoModal(false);
+                        window.dispatchEvent(new Event('storage'));
+                      }
+                    }}
+                  />
+                </label>
+                <p className="text-[9px] text-slate-400 text-center leading-normal">
+                  Plays instantly in browser (perfect for testing your offline or custom recorded video files).
+                </p>
               </div>
 
               <div className="flex justify-end gap-3 pt-2">

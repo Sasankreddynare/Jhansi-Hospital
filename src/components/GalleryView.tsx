@@ -98,8 +98,8 @@ const TOUR_CHAPTERS: VideoChapter[] = [
 export default function GalleryView() {
   const [videoUrl, setVideoUrl] = useState(() => {
     const saved = localStorage.getItem('sri_jhansi_hospital_video_url');
-    if (!saved || saved.includes('mixkit.co')) {
-      return 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
+    if (!saved || saved.includes('mixkit.co') || saved.startsWith('blob:') || saved.includes('y3YFpXv7o6s')) {
+      return 'https://res.cloudinary.com/durqgsig/video/upload/v1784649439/video_about_hospital_feelzg.mp4';
     }
     return saved;
   });
@@ -175,7 +175,7 @@ export default function GalleryView() {
   };
 
   const handleResetVideo = () => {
-    const defaultUrl = 'https://www.youtube.com/watch?v=y3YFpXv7o6s';
+    const defaultUrl = 'https://res.cloudinary.com/durqgsig/video/upload/v1784649439/video_about_hospital_feelzg.mp4';
     setVideoUrl(defaultUrl);
     localStorage.setItem('sri_jhansi_hospital_video_url', defaultUrl);
     setStartSeconds(0);
@@ -246,21 +246,46 @@ export default function GalleryView() {
               </button>
             </div>
 
-            <div className="flex gap-2.5 pt-1.5">
-              <button
-                type="button"
-                onClick={handleResetVideo}
-                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-transparent border border-slate-200 dark:border-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
-              >
-                Reset to Official Tour
-              </button>
-              <button
-                type="button"
-                onClick={() => setInputUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')}
-                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-transparent border border-slate-200 dark:border-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer"
-              >
-                Load Sample MP4 Presets
-              </button>
+            <div className="flex flex-col sm:flex-row gap-3 pt-1.5">
+              <div className="flex gap-2 flex-grow">
+                <button
+                  type="button"
+                  onClick={handleResetVideo}
+                  className="flex-1 px-3 py-2 bg-slate-50 hover:bg-slate-100 dark:bg-transparent border border-slate-200 dark:border-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer text-center"
+                >
+                  Reset Tour
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInputUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4')}
+                  className="flex-1 px-3 py-2 bg-slate-50 hover:bg-slate-100 dark:bg-transparent border border-slate-200 dark:border-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wider rounded-lg transition-colors cursor-pointer text-center"
+                >
+                  Load Sample MP4
+                </button>
+              </div>
+
+              <label className="flex items-center justify-center gap-1.5 px-4 py-2 bg-teal-50 hover:bg-teal-100/80 dark:bg-teal-950/20 dark:hover:bg-teal-950/30 text-[10px] text-teal-750 dark:text-teal-400 font-bold uppercase tracking-wider rounded-lg border border-dashed border-teal-200 dark:border-teal-900 transition-colors cursor-pointer text-center whitespace-nowrap shrink-0">
+                <Video size={12} className="text-teal-550 shrink-0" />
+                <span>Upload Local Video</span>
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const objectUrl = URL.createObjectURL(file);
+                      setVideoUrl(objectUrl);
+                      localStorage.setItem('sri_jhansi_hospital_video_url', objectUrl);
+                      setStartSeconds(0);
+                      setActiveChapter(0);
+                      setShowConfig(false);
+                      showToast('Local Video Loaded successfully!');
+                      window.dispatchEvent(new Event('storage'));
+                    }
+                  }}
+                />
+              </label>
             </div>
           </form>
         </div>
