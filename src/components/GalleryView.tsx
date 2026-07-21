@@ -89,7 +89,7 @@ const TOUR_CHAPTERS: VideoChapter[] = [
   {
     time: "2:12",
     seconds: 132,
-    title: "Address & 24/7 Intake Helpline",
+    title: "Address & Dedicated Intake Helpline",
     description: "Direct contact info, landmark guidance on Tirupati Bypass Road, and active hotlines.",
     category: "Emergency Contact"
   }

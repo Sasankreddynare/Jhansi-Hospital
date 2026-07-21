@@ -57,7 +57,7 @@ export default function ContactView({
                 <Phone size={18} className="animate-pulse" />
               </div>
               <span className="text-[8.5px] font-mono font-black uppercase bg-red-500 text-white px-2 py-0.5 rounded-md tracking-wider">
-                24/7 Red-Zone desk
+                Priority Red-Zone desk
               </span>
             </div>
 

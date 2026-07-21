@@ -44,8 +44,8 @@ export default function App() {
   const [activePage, setActivePage] = useState<string>('home');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Specialties / Facilities tab state: 'departments' | 'diagnostics' | 'doctors'
-  const [servicesTab, setServicesTab] = useState<'departments' | 'diagnostics' | 'doctors'>('departments');
+  // Specialties / Facilities tab state: 'departments' | 'diagnostics'
+  const [servicesTab, setServicesTab] = useState<'departments' | 'diagnostics'>('departments');
   const [selectedDeptId, setSelectedDeptId] = useState(DEPARTMENTS[0].id);
 
   // Doctors filtering state inside services
@@ -594,10 +594,6 @@ export default function App() {
               setActiveTab={setServicesTab}
               selectedDeptId={selectedDeptId}
               setSelectedDeptId={setSelectedDeptId}
-              doctorSearchQuery={doctorSearchQuery}
-              setDoctorSearchQuery={setDoctorSearchQuery}
-              doctorSpecialtyFilter={doctorSpecialtyFilter}
-              setDoctorSpecialtyFilter={setDoctorSpecialtyFilter}
             />
           )}
 

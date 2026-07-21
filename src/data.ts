@@ -1,13 +1,13 @@
 import { Doctor, Department, Service, RehabMilestone, Testimonial } from './types';
 
-const docDinesh = new URL('./assets/images/doc_dinesh_1781790209187.jpg', import.meta.url).href;
-const docAnantha = new URL('./assets/images/doc_anantha_1781790225195.jpg', import.meta.url).href;
-const docNagendra = new URL('./assets/images/doc_nagendra_1781790239492.jpg', import.meta.url).href;
-const docPurna = new URL('./assets/images/doc_purna_1781790254019.jpg', import.meta.url).href;
-const docPradeep = new URL('./assets/images/doc_pradeep_1781790268311.jpg', import.meta.url).href;
-const docMahesh = new URL('./assets/images/doc_mahesh_1781790280907.jpg', import.meta.url).href;
-const docShyam = new URL('./assets/images/doc_shyam_1781790293564.jpg', import.meta.url).href;
-const docAjay = new URL('./assets/images/doc_ajay_1781790308295.jpg', import.meta.url).href;
+const docDinesh = new URL('./assets/images/Dr.M.Dinesh Kumar Reddy.jpeg', import.meta.url).href;
+const docAnantha = new URL('./assets/images/Dr.V.Ananth Kiran Kumar.jfif', import.meta.url).href;
+const docNagendra = new URL('./assets/Dr.A.Hari Nagendra.jfif', import.meta.url).href;
+const docPurna = new URL('./assets/images/Dr.N.Purna Chandra Rao.jfif', import.meta.url).href;
+const docPradeep = new URL('./assets/Dr.V.Pradeep Reddy.jfif', import.meta.url).href;
+const docMahesh = new URL('./assets/images/Dr.G.Mahesh Reddy.jfif', import.meta.url).href;
+const docShyam = new URL('./assets/images/Dr.Shyam Sundar Reddy.jfif', import.meta.url).href;
+const docAjay = new URL('./assets/images/Dr.Ajay Babu.jfif', import.meta.url).href;
 
 export const DOCTORS: Doctor[] = [
   {
@@ -94,7 +94,7 @@ export const DEPARTMENTS: Department[] = [
     iconName: 'Bone',
     description: 'Expert fracture care, complex trauma reduction, joint reconstructive surgeries, and arthritic management.',
     symptoms: ['Severe Joint Pain', 'Bone Fractures', 'Sports Injury', 'Stiff joints', 'Post-injury instability'],
-    features: ['24/7 Fracture Fixation', 'Arthritic Care & Pain Panels', 'Ligament Reconstruction', 'Polytrauma Emergency Response']
+    features: ['Emergency Fracture Fixation', 'Arthritic Care & Pain Panels', 'Ligament Reconstruction', 'Polytrauma Emergency Response']
   },
   {
     id: 'neuro-rehab',
@@ -164,7 +164,7 @@ export const DEPARTMENTS: Department[] = [
     id: 'icu-emergency',
     name: 'ICU & Emergency Care',
     iconName: 'Flame',
-    description: 'Fully equipped critical care team, multi-channel monitors, and 24/7 trauma emergency systems.',
+    description: 'Fully equipped critical care team, multi-channel monitors, and dedicated trauma emergency systems.',
     symptoms: ['Severe Trauma', 'Acute difficulty breathing', 'Cardiac arrest signals', 'Loss of responsiveness'],
     features: ['Continuous Vital Monitoring', 'Ventilators & Advanced Support', 'Specialist Critical Care Team', 'Emergency Red-Zone Alert']
   }
@@ -261,11 +261,11 @@ export const SERVICES: Service[] = [
     description: 'Dedicated multidisciplinary service line to care for Hemiplegic, Quadriplegic, and Bell\'s Palsy cases.',
   },
   {
-    id: 'emergency-247',
-    name: '24/7 Trauma Emergency',
+    id: 'emergency-trauma',
+    name: 'Dedicated Trauma Emergency',
     iconName: 'PhoneCall',
     category: 'care',
-    description: 'Round-the-clock intensive trauma response with on-site specialist guidance.',
+    description: 'Intensive trauma response with on-site specialist guidance.',
     highlight: 'Ambulance Support'
   }
 ];
