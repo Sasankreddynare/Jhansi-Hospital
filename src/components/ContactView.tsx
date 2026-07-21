@@ -8,7 +8,8 @@ import {
   Compass, 
   ChevronRight,
   ShieldCheck,
-  AlertTriangle
+  AlertTriangle,
+  MessageSquare
 } from 'lucide-react';
 
 interface ContactViewProps {
@@ -40,121 +41,90 @@ export default function ContactView({
           Contact Helplines & Location Finder
         </h2>
         <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-          Reach our emergency trauma desks, locate our physical rehabilitation gym on Tirupati Bypass Road, or schedule an OPD slot.
+          Reach our emergency trauma desks, locate our physical rehabilitation gym on Tirupati Road, or schedule an OPD slot.
         </p>
       </div>
 
       {/* CORE CONTACT CARDS & ACTIONS */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Desk Line 1 - Primary Emergency */}
-        <div className="bg-[#0A4D8C] dark:bg-slate-900/90 text-white p-6 rounded-3xl border border-blue-900/40 dark:border-slate-800 shadow-md flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-full blur-xl pointer-events-none"></div>
-          
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div className="w-10 h-10 bg-white/10 text-teal-300 rounded-xl flex items-center justify-center border border-white/5 shadow-inner">
-                <Phone size={18} className="animate-pulse" />
-              </div>
-              <span className="text-[8.5px] font-mono font-black uppercase bg-red-500 text-white px-2 py-0.5 rounded-md tracking-wider">
-                Priority Red-Zone desk
-              </span>
-            </div>
+      <section className="max-w-4xl mx-auto space-y-6">
+        <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-850">
+          <div>
+            <h3 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              Choose Your Preferred Connection Mode
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              Avoid navigating complex forms or waiting for generic emails. Select any of the instant clinical channels below to chat or speak directly with our team.
+            </p>
+          </div>
+          <button 
+            onClick={onUpdateContactClick}
+            className="p-2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-350 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 transition-colors shrink-0"
+            title="Configure Helpline Numbers"
+          >
+            <Settings size={15} />
+          </button>
+        </div>
 
-            <div className="text-left">
-              <span className="text-[10px] font-bold text-teal-300 uppercase tracking-widest font-mono">Helpline Line 1</span>
-              <h4 className="text-base font-black uppercase tracking-wide mt-1 group-hover:text-teal-300 transition-colors">
-                {desk1Label}
+        {/* 1. WhatsApp Card */}
+        <div className="bg-emerald-50/40 dark:bg-[#061e1b]/30 border border-emerald-100/50 dark:border-emerald-950/45 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 hover:shadow-xs text-left">
+          <div className="flex gap-4 items-start md:items-center flex-grow">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-650 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/30 dark:border-emerald-900/40 shadow-xs">
+              <MessageSquare size={22} className="fill-emerald-100/10" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-sans font-bold text-slate-900 dark:text-white text-sm md:text-base tracking-tight uppercase">
+                WhatsApp Direct Support
               </h4>
-              <p className="text-xs text-blue-100 dark:text-slate-400 mt-1.5 font-medium leading-relaxed">
-                Connect directly with the trauma intake surgeons on call for instant fractures & critical admissions.
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium max-w-2xl">
+                Instant message inquiries for general clinic support, pediatric vaccination schedules, GFC therapies, or uploading digital prescriptions directly to our dispensary desk.
               </p>
             </div>
           </div>
+          <div className="shrink-0">
+            <a 
+              href={`https://wa.me/${desk1Phone.replace(/[^0-9]/g, '') || '919440571584'}?text=Hi%20Sri%20Jhansi%20Hospital%20Piler%2C%20I%20would%20like%20to%20consult%20a%20specialist.`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold uppercase tracking-wider text-[11px] rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap"
+            >
+              <MessageSquare size={13} className="fill-white/10" />
+              <span>Open WhatsApp Chat</span>
+            </a>
+          </div>
+        </div>
 
-          <div className="mt-8 pt-4 border-t border-white/10 flex items-center justify-between">
-            <span className="text-xs font-mono font-bold text-white/95">{desk1Phone}</span>
+        {/* 2. Voice Call Card */}
+        <div className="bg-blue-50/40 dark:bg-[#091f3d]/20 border border-blue-100/50 dark:border-blue-950/45 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all duration-300 hover:shadow-xs text-left">
+          <div className="flex gap-4 items-start md:items-center flex-grow">
+            <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/30 dark:border-blue-900/40 shadow-xs">
+              <Phone size={22} />
+            </div>
+            <div className="space-y-1">
+              <h4 className="font-sans font-bold text-slate-900 dark:text-white text-sm md:text-base tracking-tight uppercase">
+                Direct Voice Call Desk
+              </h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed font-medium max-w-2xl">
+                Direct voice assistance for immediate doctor OPD slot inquiries, roadside emergency ambulance tracking, free bedside nursing collection protocols, or specialist reference bookings.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <a 
               href={`tel:${desk1Phone}`}
-              className="bg-teal-500 hover:bg-teal-400 text-white px-4 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-md cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold uppercase tracking-wider text-[11px] rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer whitespace-nowrap"
             >
-              Dial Now
+              <Phone size={12} />
+              <span>Call Primary Desk</span>
             </a>
-          </div>
-        </div>
-
-        {/* Desk Line 2 - OPD Helpdesk */}
-        <div className="bg-white dark:bg-[#061424] p-6 rounded-3xl border border-slate-200/80 dark:border-blue-950/60 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-teal-400 flex items-center justify-center border border-blue-100/40 dark:border-blue-950/60 shadow-inner group-hover:scale-105 transition-transform">
-                <Phone size={18} />
-              </div>
-              <span className="text-[8.5px] font-mono font-black uppercase bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-teal-400 px-2.5 py-1 rounded-md tracking-wider">
-                9am - 6pm Active
-              </span>
-            </div>
-
-            <div className="text-left">
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Helpline Line 2</span>
-              <h4 className="text-base font-black uppercase tracking-wide mt-1 text-slate-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-teal-400 transition-colors">
-                {desk2Label}
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium leading-relaxed">
-                Book physical therapy session schedules, retrieve consultation records, or check diagnostic report status.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-850 flex items-center justify-between">
-            <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">{desk2Phone}</span>
             <a 
               href={`tel:${desk2Phone}`}
-              className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-md cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-extrabold uppercase tracking-wider text-[11px] rounded-xl shadow-sm transition-all cursor-pointer whitespace-nowrap"
             >
-              Dial Now
+              <Phone size={12} />
+              <span>Call Secondary Desk</span>
             </a>
           </div>
         </div>
-
-        {/* Desk Line 3 - Liaison & Admin */}
-        <div className="bg-white dark:bg-[#061424] p-6 rounded-3xl border border-slate-200/80 dark:border-blue-950/60 shadow-xs hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-teal-400 flex items-center justify-center border border-blue-100/40 dark:border-blue-950/60 shadow-inner group-hover:scale-105 transition-transform">
-                <Phone size={18} />
-              </div>
-              <button 
-                onClick={onUpdateContactClick}
-                className="p-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 text-slate-500 dark:text-teal-400 rounded-lg transition-all border border-slate-200 dark:border-slate-800"
-                title="Click to update hotline details"
-              >
-                <Settings size={12} />
-              </button>
-            </div>
-
-            <div className="text-left">
-              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">Helpline Line 3</span>
-              <h4 className="text-base font-black uppercase tracking-wide mt-1 text-slate-900 dark:text-white group-hover:text-blue-700 dark:group-hover:text-teal-400 transition-colors">
-                {liaisonLabel}
-              </h4>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium leading-relaxed">
-                Reach Chief Specialist Dr. Dinesh Kumar Reddy for medicolegal services, corporate panels, or emergency admin escalations.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-4 border-t border-slate-100 dark:border-slate-850 flex items-center justify-between">
-            <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">{liaisonPhone}</span>
-            <a 
-              href={`tel:${liaisonPhone}`}
-              className="bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-800 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-md cursor-pointer"
-            >
-              Dial Now
-            </a>
-          </div>
-        </div>
-
       </section>
 
       {/* TWO COLUMN LOCATION FINDER & MAP EMBED */}
@@ -193,8 +163,8 @@ export default function ContactView({
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-sans">Operational Timings</p>
                 <p className="text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
                   <strong>Trauma Emergency Desk:</strong> 24 Hours / 7 Days<br />
-                  <strong>Outpatient (OPD) Consultations:</strong> Mon - Sat (9:00 AM - 6:00 PM)<br />
-                  <strong>Physiotherapy Gym Sessions:</strong> Mon - Sat (8:00 AM - 8:00 PM)
+                  <strong>Outpatient (OPD) Consultations:</strong> Mon - Sun (9:00 AM - 6:00 PM)<br />
+                  <strong>Physiotherapy Gym Sessions:</strong> Mon - Sun (8:00 AM - 8:00 PM)
                 </p>
               </div>
             </div>
@@ -220,7 +190,7 @@ export default function ContactView({
               <span>Direct Driving Navigation</span>
             </div>
             <a 
-              href="https://maps.google.com/?q=Sri+Jhansi+Hospital+Tirupati+Bypass+Road+Piler+Andhra+Pradesh"
+              href="https://maps.google.com/?q=Sri+Jhansi+Hospital+Complex+Tirupati+Road+Pileru+Andhra+Pradesh"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full py-3.5 bg-[#0A4D8C] hover:bg-blue-800 text-white text-xs font-extrabold uppercase tracking-widest rounded-xl transition-all shadow-md text-center flex items-center justify-center gap-1 cursor-pointer"

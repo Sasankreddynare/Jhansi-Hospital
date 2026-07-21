@@ -38,7 +38,7 @@ const GALLERY_PHOTOS = [
   {
     src: galleryMain,
     title: "Sri Jhansi Hospital Premises",
-    desc: "Our primary clinical facilities located beside Tirupati Bypass Road, Piler, featuring ample parking and accessible patient entry.",
+    desc: "Our primary clinical facilities located at Sri Jhansi Hospital Complex, Tirupati Road, Pileru, featuring ample parking and accessible patient entry.",
     category: "Infrastructure"
   },
   {

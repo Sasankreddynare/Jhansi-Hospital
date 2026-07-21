@@ -721,13 +721,9 @@ export default function App() {
                   <span>Consultation Timings</span>
                 </div>
                 <div className="space-y-2 text-xs text-slate-350">
-                  <div className="flex justify-between border-b border-slate-900/40 pb-1.5">
-                    <span>Monday - Saturday:</span>
-                    <strong className="text-white">9 AM - 6 PM</strong>
-                  </div>
                   <div className="flex justify-between pb-0.5">
-                    <span>Sunday:</span>
-                    <strong className="text-slate-500 font-medium">Closed</strong>
+                    <span>Monday - Sunday:</span>
+                    <strong className="text-white">9 AM - 6 PM</strong>
                   </div>
                 </div>
                 <div className="text-[9.5px] leading-normal text-slate-500 font-medium">
